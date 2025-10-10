@@ -1,0 +1,8 @@
+{
+  "startup": {
+    "category": "master",
+    "sounds": [
+      "startup"
+    ]
+  }
+}

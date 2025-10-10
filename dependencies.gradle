@@ -36,5 +36,5 @@
 dependencies {
     //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
     api("com.github.GTNewHorizons:GTNHLib:0.7.0:dev")
-
+    runtimeOnlyNonPublishable(rfg.deobf(files("libs/Ding-MC1.7.10v2.jar")))
 }

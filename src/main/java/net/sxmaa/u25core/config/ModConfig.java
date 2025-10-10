@@ -1,7 +1,8 @@
 package net.sxmaa.u25core.config;
 
-import com.gtnewhorizon.gtnhlib.config.Config;
 import net.sxmaa.u25core.U25Core;
+
+import com.gtnewhorizon.gtnhlib.config.Config;
 
 @Config(modid = U25Core.MODID)
 public class ModConfig {

@@ -1,17 +1,18 @@
 package net.sxmaa.u25core;
 
-import com.gtnewhorizon.gtnhmixins.IEarlyMixinLoader;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.gtnewhorizon.gtnhmixins.IEarlyMixinLoader;
+
+import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
 @IFMLLoadingPlugin.SortingIndex(1001)
 public class U25EarlyMixins implements IFMLLoadingPlugin, IEarlyMixinLoader {
+
     @Override
     public String getMixinConfig() {
         return "mixins.u25core.early.json";

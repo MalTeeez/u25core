@@ -1,12 +1,14 @@
 package net.sxmaa.u25core;
 
+import net.sxmaa.u25core.config.ModConfig;
+
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
 import com.gtnewhorizon.gtnhlib.config.ConfigurationManager;
+
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import net.sxmaa.u25core.config.ModConfig;
 
 public class CommonProxy {
 

@@ -1,6 +1,5 @@
 package net.sxmaa.u25core;
 
-import net.sxmaa.u25core.Tags;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
