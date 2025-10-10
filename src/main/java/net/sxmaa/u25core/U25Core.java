@@ -10,7 +10,12 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = U25Core.MODID, version = Tags.VERSION, name = "U25Core", acceptedMinecraftVersions = "[1.7.10]")
+@Mod(
+    modid = U25Core.MODID,
+    version = Tags.VERSION,
+    name = "U25Core",
+    acceptedMinecraftVersions = "[1.7.10]",
+    dependencies = "after:EnderIO")
 public class U25Core {
 
     public static final String MODID = "u25core";

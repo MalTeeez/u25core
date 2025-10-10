@@ -8,6 +8,6 @@ import com.gtnewhorizon.gtnhlib.config.Config;
 public class ModConfig {
 
     @Config.Comment("Toggle some unused features in EnderIO if present, such as Gas Conduits, make item conduits more useful.")
-    @Config.DefaultBoolean(false)
+    @Config.DefaultBoolean(true)
     public static boolean enderIOTweaks;
 }

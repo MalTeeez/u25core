@@ -11,7 +11,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
 @IFMLLoadingPlugin.SortingIndex(1001)
-public class U25EarlyMixins implements IFMLLoadingPlugin, IEarlyMixinLoader {
+public class EarlyMixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public String getMixinConfig() {

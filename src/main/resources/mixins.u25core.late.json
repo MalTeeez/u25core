@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8.5-GTNH",
+  "package": "net.sxmaa.u25core.mixin.late",
+  "refmap": "mixins.u25core.refmap.json",
+  "target": "@env(DEFAULT)",
+  "compatibilityLevel": "JAVA_8"
+}

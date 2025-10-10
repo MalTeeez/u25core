@@ -21,6 +21,8 @@ public class CommonProxy {
             throw new RuntimeException(e);
         }
         U25Core.LOG.info("Registering U25Core at version " + Tags.VERSION);
+
+        ModIntegration.init();
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
