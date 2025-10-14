@@ -1,0 +1,1 @@
+- Tweak CC potion medaillons to be you know - less op
