@@ -34,10 +34,17 @@
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
-    //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
+    //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.8.19-GTNH:dev")
     api("com.github.GTNewHorizons:GTNHLib:0.7.0:dev")
+    //api("com.github.GTNewHorizons:RTG:1.1.4-GTNH:dev")
+    api("com.github.GTNewHorizons:EnderIO:2.10.3:dev")
+    api("com.github.GTNewHorizons:StructureLib:1.4.23:dev")
 
-    devOnlyNonPublishable("com.github.GTNewHorizons:EnderIO:2.10.0:dev")
+    runtimeOnly("com.github.GTNewHorizons:BlockRenderer6343:1.3.17:dev") { transitive = false }
 
-    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Angelica:1.0.0-beta59:dev")
+    runtimeOnly("com.github.GTNewHorizons:Angelica:1.0.0-beta62:dev")
+    // runtimeOnly(files("libs/distanthorizons-alpha11-dev.jar"))
+    runtimeOnly("com.github.GTNewHorizons:Climate-Control:0.10.0-GTNH:dev")
+    runtimeOnly(rfg.deobf(files("libs/BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar")))
+    runtimeOnly(rfg.deobf(files("libs/journeymap-1.7.10-5.2.10-unlimited.jar")))
 }

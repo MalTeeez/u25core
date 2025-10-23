@@ -10,11 +10,17 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = U25Core.MODID, name = "U25Core", version = Tags.VERSION, dependencies = """
-    after:EnderIO;\
-    required-after:unimixins;\
-    required-after:gtnhlib;\
-    """, acceptedMinecraftVersions = "[1.7.10]", acceptableRemoteVersions = "*")
+@Mod(
+    modid = U25Core.MODID,
+    name = "U25Core",
+    version = Tags.VERSION,
+    dependencies = "required-after:Forge;" + "after:structurelib;"
+        + "after:EnderIO;"
+        + "before:blockrenderer6343;"
+        + "required-after:unimixins;"
+        + "required-after:gtnhlib;",
+    acceptedMinecraftVersions = "[1.7.10]",
+    acceptableRemoteVersions = "*")
 public class U25Core {
 
     public static final String MODID = "u25core";

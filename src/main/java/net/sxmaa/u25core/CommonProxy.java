@@ -1,5 +1,6 @@
 package net.sxmaa.u25core;
 
+import net.sxmaa.u25core.common.multiblocks.TelepadMultiblock;
 import net.sxmaa.u25core.config.ModConfig;
 
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
@@ -20,9 +21,10 @@ public class CommonProxy {
         } catch (ConfigException e) {
             throw new RuntimeException(e);
         }
-        U25Core.LOG.info("Registering U25Core at version " + Tags.VERSION);
 
         ModIntegration.init();
+
+        registerMultiblocks();
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
@@ -33,4 +35,8 @@ public class CommonProxy {
 
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {}
+
+    public void registerMultiblocks() {
+        TelepadMultiblock.registerSelf();
+    }
 }

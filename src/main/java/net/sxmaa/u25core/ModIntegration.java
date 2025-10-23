@@ -7,6 +7,6 @@ public class ModIntegration {
     public static boolean isEnderIOLoaded;
 
     static void init() {
-        isEnderIOLoaded = Loader.isModLoaded("enderio");
+        isEnderIOLoaded = Loader.isModLoaded("EnderIO");
     }
 }

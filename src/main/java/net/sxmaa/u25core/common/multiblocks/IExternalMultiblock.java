@@ -1,0 +1,280 @@
+package net.sxmaa.u25core.common.multiblocks;
+
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
+import javax.annotation.Nonnull;
+
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+
+import org.joml.Vector3i;
+
+import com.gtnewhorizon.structurelib.alignment.constructable.IMultiblockInfoContainer;
+import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
+import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
+import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureUtility;
+
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
+/**
+ * Abstract base class to provide a StructureLib implementation of external multiblock structures.
+ * <p>
+ * This class provides a framework for defining multiblock structures from external mods
+ * by implementing the {@link IMultiblockInfoContainer} interface. It uses the Template Method
+ * pattern where subclasses provide structure definitions through abstract methods that are
+ * called during construction to initialize immutable configuration fields.
+ * <p>
+ * <b>Usage Example:</b>
+ *
+ * <pre>
+ *
+ * {
+ *     &#64;code
+ *     public class TelepadMultiblock extends IExternalMultiblock<TileTelePad> {
+ *
+ *         &#64;Override
+ *         protected String[][] getStructureBlueprint() {
+ *             return new String[][] { { "TTT", "TTT", "TTT" }, { "MMM", "MMM", "MMM" }, { "BBB", "BBB", "BBB" } };
+ *         }
+ *
+ *         &#64;Override
+ *         protected IStructureDefinition<TileTelePad> getStructureDefinition() {
+ *             return StructureDefinition.<TileTelePad>builder()
+ *                 .addShape("main", STRUCTURE_BLUEPRINT)
+ *                 .addElement('T', StructureUtility.ofBlockAnyMeta(Blocks.gold_block))
+ *                 .addElement('M', StructureUtility.ofBlockAnyMeta(Blocks.diamond_block))
+ *                 .addElement('B', StructureUtility.ofBlockAnyMeta(Blocks.iron_block))
+ *                 .build();
+ *         }
+ *
+ *         &#64;Override
+ *         protected Vector3i getControllerOffset() {
+ *             return new Vector3i(1, 0, -1);
+ *         }
+ *
+ *         &#64;Override
+ *         public String getRequiredMod() {
+ *             return "EnderIO";
+ *         }
+ *
+ *         public static void register() {
+ *             registerInstance(new TelepadMultiblock());
+ *         }
+ *     }
+ * }
+ * </pre>
+ * <p>
+ * <b>Registration:</b><br>
+ * Subclasses should implement a static {@code register()} method that creates an instance
+ * and calls {@link #registerInstance(IExternalMultiblock)} during mod initialization.
+ * <p>
+ * <b>Important Notes:</b>
+ * <ul>
+ * <li>All abstract methods are called during construction to initialize final fields</li>
+ * <li>Methods should return new objects and not depend on subclass instance state</li>
+ * <li>The multiblock will only be registered if the required mod is loaded</li>
+ * </ul>
+ *
+ * @param <T> The type of TileEntity that serves as the multiblock controller
+ * @see IMultiblockInfoContainer
+ * @see StructureDefinition
+ */
+public abstract class IExternalMultiblock<T extends TileEntity> implements IMultiblockInfoContainer<T> {
+
+    @Nonnull
+    public String[][] STRUCTURE_BLUEPRINT;
+
+    /**
+     * Provides the structure blueprint in the form of a 3D array of chars.
+     * Called once during construction.
+     * <p>
+     * Blocks are evaluated as char[x][y][z], but can be switched to char[x][z][y]
+     * with {@link StructureUtility#transpose(String[][])}.
+     * <p>
+     * For special chars & variants see
+     * {@link com.gtnewhorizon.structurelib.structure.StructureDefinition.Builder#addShape(String, String[][])}.
+     * <p>
+     * The rough usage with the example STRUCTURE_BLUEPRINT should be:
+     *
+     * <pre>
+     * {@code
+     * // spotless:off
+     * new String[][] {
+     *      { "TTT", "TTT", "TTT" },
+     *      { "MMM", "MMM", "MMM" },
+     *      { "BBB", "BBB", "BBB" },
+     * };
+     * // spotless:on
+     * }
+     * </pre>
+     */
+    protected abstract String[][] getStructureBlueprint();
+
+    @Nonnull
+    public IStructureDefinition<T> STRUCTURE_DEFINITION;
+
+    /**
+     * Builds the multiblock definition using
+     * {@link com.gtnewhorizon.structurelib.structure.StructureDefinition.Builder}
+     * and the previously set STRUCTURE_BLUEPRINT.
+     * Called once during construction.
+     * <p>
+     * <b>WARN: If you tamper with the constructor, make sure to first set STRUCTURE_BLUEPRINT.</b>
+     * <p>
+     * Basic form should be:
+     *
+     * <pre>
+     * {@code
+     * StructureDefinition
+     *         .<TileEntity>builder()
+     *         .addShape("main", STRUCTURE_BLUEPRINT)
+     *         .addElement('T', StructureUtility.ofBlockAnyMeta(Blocks.gold_block))
+     *         .addElement('M', StructureUtility.ofBlockAnyMeta(Blocks.diamond_block))
+     *         .addElement('B', StructureUtility.ofBlockAnyMeta(Blocks.iron_block))
+     *         .build();
+     * }
+     * </pre>
+     */
+    protected abstract IStructureDefinition<T> getStructureDefinition();
+
+    @Nonnull
+    public Vector3i CONTROLLER_OFFSET;
+
+    /**
+     * Provides the relative offset from 0, 0, 0 to the multiblock's controller.
+     * Called once during construction.
+     */
+    protected abstract Vector3i getControllerOffset();
+
+    @Nonnull
+    protected String REQUIRED_MOD;
+
+    /**
+     * The id of the mod this multiblock depends on.
+     * Called once during construction.
+     */
+    public abstract String getRequiredMod();
+
+    /**
+     *
+     *
+     * @param structureBlueprint  The 3D char array defining the multiblock structure.
+     *                            See {@link #STRUCTURE_BLUEPRINT} for format details.
+     * @param structureDefinition The structure definition mapping blueprint characters to blocks.
+     *                            See {@link #STRUCTURE_DEFINITION} for usage example.
+     * @param controllerOffset    The relative offset from (0,0,0) to the multiblock's controller tile.
+     *                            See {@link #CONTROLLER_OFFSET} for details.
+     */
+    protected IExternalMultiblock(@Nonnull String[][] structureBlueprint,
+        @Nonnull IStructureDefinition<T> structureDefinition, @Nonnull Vector3i controllerOffset,
+        @Nonnull String requiredMod) {
+        STRUCTURE_BLUEPRINT = structureBlueprint;
+        STRUCTURE_DEFINITION = structureDefinition;
+        CONTROLLER_OFFSET = controllerOffset;
+        REQUIRED_MOD = requiredMod;
+    }
+
+    /**
+     * Constructs a multiblock for an external mod with the given structure definition.
+     * Uses all abstract getters to set constants to default values.
+     * Do not call the super if overriding this.
+     */
+    public IExternalMultiblock() {
+        STRUCTURE_BLUEPRINT = getStructureBlueprint();
+        STRUCTURE_DEFINITION = getStructureDefinition();
+        CONTROLLER_OFFSET = getControllerOffset();
+        REQUIRED_MOD = getRequiredMod();
+    }
+
+    @Override
+    public void construct(ItemStack item, boolean hintsOnly, T tileEntity, ExtendedFacing aSide) {
+        int baseX = tileEntity.xCoord + CONTROLLER_OFFSET.x;
+        int baseY = tileEntity.yCoord + CONTROLLER_OFFSET.y;
+        int baseZ = tileEntity.zCoord + CONTROLLER_OFFSET.z;
+        STRUCTURE_DEFINITION.buildOrHints(
+            tileEntity,
+            item,
+            "main",
+            tileEntity.getWorldObj(),
+            ExtendedFacing.UP_NORMAL_VERTICAL,
+            baseX,
+            baseY,
+            baseZ,
+            0,
+            0,
+            0,
+            hintsOnly);
+    }
+
+    @Override
+    public int survivalConstruct(ItemStack item, int elementBudget, ISurvivalBuildEnvironment env, T tileEntity,
+        ExtendedFacing aSide) {
+        int baseX = tileEntity.xCoord + CONTROLLER_OFFSET.x;
+        int baseY = tileEntity.yCoord + CONTROLLER_OFFSET.y;
+        int baseZ = tileEntity.zCoord + CONTROLLER_OFFSET.z;
+        return STRUCTURE_DEFINITION.survivalBuild(
+            tileEntity,
+            item,
+            "main",
+            tileEntity.getWorldObj(),
+            ExtendedFacing.UP_NORMAL_VERTICAL,
+            baseX,
+            baseY,
+            baseZ,
+            0,
+            0,
+            0,
+            1,
+            env,
+            false);
+    }
+
+    public String getName() {
+        return this.getClass()
+            .getSimpleName();
+    }
+
+    public String getDimensions() {
+        return "3x1x3";
+    }
+
+    @SideOnly(Side.CLIENT)
+    @Override
+    public String[] getDescription(ItemStack item) {
+        return new String[] { this.getName() + " Multiblock", "Dimensions: " + this.getDimensions(),
+            "Controller: " + getControllerTileClass() };
+    }
+
+    @SuppressWarnings("unchecked")
+    public Class<? extends TileEntity> getControllerTileClass() {
+        Type superclass = this.getClass()
+            .getGenericSuperclass();
+        if (superclass instanceof ParameterizedType) {
+            Type typeArg = ((ParameterizedType) superclass).getActualTypeArguments()[0];
+            if (typeArg instanceof Class) {
+                return (Class<? extends TileEntity>) typeArg;
+            }
+        }
+        throw new IllegalStateException("Could not determine controller tile class for " + this.getClass());
+    }
+
+    protected static <T extends TileEntity> void registerInstance(IExternalMultiblock<T> instance) {
+        if (Loader.isModLoaded(instance.getRequiredMod())) {
+            IMultiblockInfoContainer.registerTileClass(instance.getControllerTileClass(), instance);
+        }
+    }
+
+    /**
+     * Registers this class with its default values.
+     * Don't forget to implement this method yourself.
+     */
+    public static void registerSelf() {
+        registerInstance(null);
+    }
+
+}
