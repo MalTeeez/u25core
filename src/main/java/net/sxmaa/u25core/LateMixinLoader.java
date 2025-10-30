@@ -42,6 +42,18 @@ public class LateMixinLoader implements ILateMixinLoader {
             mixins.add("enderio.extractupgrade.NetworkedInventoryMixin");
         }
 
+        if (ModConfig.reikaStructureLibMultiblocks && loadedMods.contains("structurelib")
+            && loadedMods.contains("blockrenderer6343")
+            && loadedMods.contains("DragonAPI")) {
+            mixins.add("blockrenderer6343.BlocksToPlaceMixin");
+            mixins.add("blockrenderer6343.GuiMultiblockHandlerAccessor");
+            mixins.add("blockrenderer6343.ObserverWorldMixin");
+            if (loadedMods.contains("ReactorCraft")) {
+                mixins.add("blockrenderer6343.StructureCompatGuiHandlerMixin");
+                mixins.add("blockrenderer6343.StructureUtilityMixin");
+            }
+        }
+
         return mixins;
     }
 }

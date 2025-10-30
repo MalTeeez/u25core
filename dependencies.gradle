@@ -35,16 +35,34 @@
  */
 dependencies {
     //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.8.19-GTNH:dev")
-    api("com.github.GTNewHorizons:GTNHLib:0.7.0:dev")
-    //api("com.github.GTNewHorizons:RTG:1.1.4-GTNH:dev")
-    api("com.github.GTNewHorizons:EnderIO:2.10.3:dev")
-    api("com.github.GTNewHorizons:StructureLib:1.4.23:dev")
 
-    runtimeOnly("com.github.GTNewHorizons:BlockRenderer6343:1.3.17:dev") { transitive = false }
+    // Library stuff
+    devOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.7.0:dev")
+    devOnlyNonPublishable("com.github.GTNewHorizons:StructureLib:1.4.23:dev")
 
-    runtimeOnly("com.github.GTNewHorizons:Angelica:1.0.0-beta62:dev")
+
+    // Feature Stuff
+    devOnlyNonPublishable("com.github.GTNewHorizons:EnderIO:2.10.3:dev") { transitive = true }
+
+    devOnlyNonPublishable(rfg.deobf("curse.maven:dragonapi-235591:4722480"))
+    devOnlyNonPublishable(rfg.deobf("curse.maven:chromaticraft-235590:4721192"))
+    devOnlyNonPublishable(rfg.deobf("curse.maven:rotarycraft-235596:4721191"))
+    devOnlyNonPublishable(rfg.deobf("curse.maven:reactorcraft-235593:4721203"))
+
+    devOnlyNonPublishable("com.github.GTNewHorizons:BlockRenderer6343:1.3.17:dev") { transitive = false }
+
+
+    // Required at runtime by devOnlyNonPublishable
+    runtimeOnly(files("libs/chromatifixes-1.12.5-pre-dev.jar"))
+
+
+    // Runtime QOL stuff
+    runtimeOnly("com.github.GTNewHorizons:Angelica:1.0.0-beta63:dev")
+    runtimeOnly("com.github.GTNewHorizons:CoreTweaks:0.3.3.6-GTNH:dev")
+
+
     // runtimeOnly(files("libs/distanthorizons-alpha11-dev.jar"))
-    runtimeOnly("com.github.GTNewHorizons:Climate-Control:0.10.0-GTNH:dev")
-    runtimeOnly(rfg.deobf(files("libs/BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar")))
-    runtimeOnly(rfg.deobf(files("libs/journeymap-1.7.10-5.2.10-unlimited.jar")))
+    //runtimeOnly("com.github.GTNewHorizons:Climate-Control:0.10.0-GTNH:dev")
+    //runtimeOnly(rfg.deobf(files("libs/BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar")))
+    //runtimeOnly(rfg.deobf(files("libs/journeymap-1.7.10-5.2.10-unlimited.jar")))
 }

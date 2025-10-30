@@ -17,7 +17,7 @@ import com.gtnewhorizon.structurelib.structure.ISurvivalBuildEnvironment;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
 
-import cpw.mods.fml.common.Loader;
+import blockrenderer6343.api.utils.CreativeItemSource;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -80,6 +80,14 @@ import cpw.mods.fml.relauncher.SideOnly;
  * <li>The multiblock will only be registered if the required mod is loaded</li>
  * </ul>
  *
+ * <p>
+ * Notes:
+ * If you get a crash for java.lang.NullPointerException: Cannot invoke "Object.getClass()" because "tTileEntity" is
+ * null
+ * That is due to structurelib checking the controller position (including offset) and finding a tile entity,
+ * Probably due to the controller offset being wrong
+ * </p>
+ *
  * @param <T> The type of TileEntity that serves as the multiblock controller
  * @see IMultiblockInfoContainer
  * @see StructureDefinition
@@ -116,7 +124,9 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
     protected abstract String[][] getStructureBlueprint();
 
     @Nonnull
-    public IStructureDefinition<T> STRUCTURE_DEFINITION;
+    public IStructureDefinition<T> STRUCTURE_DEFINITION_CREATIVE;
+    @Nonnull
+    public IStructureDefinition<T> STRUCTURE_DEFINITION_SURVIVAL;
 
     /**
      * Builds the multiblock definition using
@@ -132,7 +142,7 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
      * {@code
      * StructureDefinition
      *         .<TileEntity>builder()
-     *         .addShape("main", STRUCTURE_BLUEPRINT)
+     *         .addShape("main", getAllowHotswap() ? getStructureBlueprint() : STRUCTURE_BLUEPRINT)
      *         .addElement('T', StructureUtility.ofBlockAnyMeta(Blocks.gold_block))
      *         .addElement('M', StructureUtility.ofBlockAnyMeta(Blocks.diamond_block))
      *         .addElement('B', StructureUtility.ofBlockAnyMeta(Blocks.iron_block))
@@ -140,43 +150,11 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
      * }
      * </pre>
      */
-    protected abstract IStructureDefinition<T> getStructureDefinition();
+    protected abstract IStructureDefinition<T> getStructureDefinition(String[][] blueprint);
 
-    @Nonnull
-    public Vector3i CONTROLLER_OFFSET;
-
-    /**
-     * Provides the relative offset from 0, 0, 0 to the multiblock's controller.
-     * Called once during construction.
-     */
-    protected abstract Vector3i getControllerOffset();
-
-    @Nonnull
-    protected String REQUIRED_MOD;
-
-    /**
-     * The id of the mod this multiblock depends on.
-     * Called once during construction.
-     */
-    public abstract String getRequiredMod();
-
-    /**
-     *
-     *
-     * @param structureBlueprint  The 3D char array defining the multiblock structure.
-     *                            See {@link #STRUCTURE_BLUEPRINT} for format details.
-     * @param structureDefinition The structure definition mapping blueprint characters to blocks.
-     *                            See {@link #STRUCTURE_DEFINITION} for usage example.
-     * @param controllerOffset    The relative offset from (0,0,0) to the multiblock's controller tile.
-     *                            See {@link #CONTROLLER_OFFSET} for details.
-     */
-    protected IExternalMultiblock(@Nonnull String[][] structureBlueprint,
-        @Nonnull IStructureDefinition<T> structureDefinition, @Nonnull Vector3i controllerOffset,
-        @Nonnull String requiredMod) {
-        STRUCTURE_BLUEPRINT = structureBlueprint;
-        STRUCTURE_DEFINITION = structureDefinition;
-        CONTROLLER_OFFSET = controllerOffset;
-        REQUIRED_MOD = requiredMod;
+    protected IStructureDefinition<T> getStructureDefinition() {
+        String[][] blueprint = getAllowHotswap() ? getStructureBlueprint() : STRUCTURE_BLUEPRINT;
+        return getStructureDefinition(blueprint);
     }
 
     /**
@@ -186,22 +164,25 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
      */
     public IExternalMultiblock() {
         STRUCTURE_BLUEPRINT = getStructureBlueprint();
-        STRUCTURE_DEFINITION = getStructureDefinition();
-        CONTROLLER_OFFSET = getControllerOffset();
-        REQUIRED_MOD = getRequiredMod();
+        STRUCTURE_DEFINITION_CREATIVE = getStructureDefinition();
+        STRUCTURE_DEFINITION_SURVIVAL = getStructureDefinition(getSafeBlueprint());
     }
 
     @Override
     public void construct(ItemStack item, boolean hintsOnly, T tileEntity, ExtendedFacing aSide) {
-        int baseX = tileEntity.xCoord + CONTROLLER_OFFSET.x;
-        int baseY = tileEntity.yCoord + CONTROLLER_OFFSET.y;
-        int baseZ = tileEntity.zCoord + CONTROLLER_OFFSET.z;
-        STRUCTURE_DEFINITION.buildOrHints(
+        Vector3i controllerOffset = getControllerOffset(tileEntity);
+        int baseX = tileEntity.xCoord + controllerOffset.x;
+        int baseY = tileEntity.yCoord + controllerOffset.y;
+        int baseZ = tileEntity.zCoord + controllerOffset.z;
+        IStructureDefinition<T> structureDefinition = getAllowHotswap() ? getStructureDefinition()
+            : STRUCTURE_DEFINITION_CREATIVE;
+
+        boolean buildDone = structureDefinition.buildOrHints(
             tileEntity,
             item,
             "main",
             tileEntity.getWorldObj(),
-            ExtendedFacing.UP_NORMAL_VERTICAL,
+            getDefaultStructureFacing(aSide, tileEntity) == null ? aSide : getDefaultStructureFacing(aSide, tileEntity),
             baseX,
             baseY,
             baseZ,
@@ -209,29 +190,103 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
             0,
             0,
             hintsOnly);
+        if (!hintsOnly && buildDone) {
+            postConstructCheck(tileEntity, aSide);
+        }
     }
 
     @Override
     public int survivalConstruct(ItemStack item, int elementBudget, ISurvivalBuildEnvironment env, T tileEntity,
         ExtendedFacing aSide) {
-        int baseX = tileEntity.xCoord + CONTROLLER_OFFSET.x;
-        int baseY = tileEntity.yCoord + CONTROLLER_OFFSET.y;
-        int baseZ = tileEntity.zCoord + CONTROLLER_OFFSET.z;
-        return STRUCTURE_DEFINITION.survivalBuild(
+        Vector3i controllerOffset = getControllerOffset(tileEntity);
+        int baseX = tileEntity.xCoord + controllerOffset.x;
+        int baseY = tileEntity.yCoord + controllerOffset.y;
+        int baseZ = tileEntity.zCoord + controllerOffset.z;
+        IStructureDefinition<T> structureDefinition = getAllowHotswap() ? getStructureDefinition(getSafeBlueprint())
+            : STRUCTURE_DEFINITION_SURVIVAL;
+        boolean isGuiCall = elementBudget == Integer.MAX_VALUE && env.getSource() instanceof CreativeItemSource;
+
+        int structureState = structureDefinition.survivalBuild(
             tileEntity,
             item,
             "main",
             tileEntity.getWorldObj(),
-            ExtendedFacing.UP_NORMAL_VERTICAL,
+            getDefaultStructureFacing(aSide, tileEntity) == null ? aSide : getDefaultStructureFacing(aSide, tileEntity),
             baseX,
             baseY,
             baseZ,
             0,
             0,
             0,
-            1,
+            isGuiCall ? elementBudget : getElementBudgetFromTriggerItem(item, elementBudget),
             env,
             false);
+        if (structureState == -1) {
+            postConstructCheck(tileEntity, aSide);
+        }
+        return structureState;
+    }
+
+    protected String[][] getSafeBlueprint() {
+        String[][] blueprint = getAllowHotswap() ? getStructureBlueprint() : STRUCTURE_BLUEPRINT;
+        if (getControllerChar() == null) {
+            return blueprint;
+        }
+
+        for (int i = 0; i < blueprint.length; i++) {
+            if (blueprint[i] != null) {
+                for (int j = 0; j < blueprint[i].length; j++) {
+                    if (blueprint[i][j] != null) {
+                        blueprint[i][j] = blueprint[i][j].replace(getControllerChar(), "~");
+                    }
+                }
+            }
+        }
+        return blueprint;
+    }
+
+    /**
+     * An optional function to run after building / adding to the structure.
+     * Intended for forcing manual checks of multiblock complete-ness.
+     */
+    protected void postConstructCheck(T te, ExtendedFacing facing) {};
+
+    /**
+     * Override the provided element budget with a custom one.
+     */
+    protected int getElementBudgetFromTriggerItem(ItemStack item, int providedBudget) {
+        return 1;
+    }
+
+    /**
+     * Provides the relative offset from 0, 0, 0 to the multiblock's controller.
+     * Called once during construction.
+     */
+    protected Vector3i getControllerOffset(T te) {
+        return new Vector3i(0, 0, 0);
+    };
+
+    /**
+     * Override the provided structure facing with a custom one.
+     */
+    protected ExtendedFacing getDefaultStructureFacing(ExtendedFacing aSide, T te) {
+        return null;
+    }
+
+    /**
+     * Set the character used for the controller in the structure blueprint.
+     * Will replace that character at runtime with ~.
+     * This fixes an issue where the multiblock can't be constructed in survival because the controller block does
+     * not resolve to the same item.
+     * <p>
+     * Do not use this char more than once in the blueprint.
+     */
+    protected String getControllerChar() {
+        return null;
+    }
+
+    protected boolean getAllowHotswap() {
+        return false;
     }
 
     public String getName() {
@@ -240,7 +295,7 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
     }
 
     public String getDimensions() {
-        return "3x1x3";
+        return null;
     }
 
     @SideOnly(Side.CLIENT)
@@ -264,9 +319,7 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
     }
 
     protected static <T extends TileEntity> void registerInstance(IExternalMultiblock<T> instance) {
-        if (Loader.isModLoaded(instance.getRequiredMod())) {
-            IMultiblockInfoContainer.registerTileClass(instance.getControllerTileClass(), instance);
-        }
+        IMultiblockInfoContainer.registerTileClass(instance.getControllerTileClass(), instance);
     }
 
     /**

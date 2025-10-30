@@ -2,6 +2,7 @@ package net.sxmaa.u25core.common.multiblocks;
 
 import org.joml.Vector3i;
 
+import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
@@ -21,21 +22,21 @@ public class TelepadMultiblock extends IExternalMultiblock<TileTelePad> {
     }
 
     @Override
-    protected IStructureDefinition<TileTelePad> getStructureDefinition() {
+    protected IStructureDefinition<TileTelePad> getStructureDefinition(String[][] blueprint) {
         return StructureDefinition.<TileTelePad>builder()
-            .addShape("main", STRUCTURE_BLUEPRINT)
+            .addShape("main", blueprint)
             .addElement('T', StructureUtility.ofBlockAnyMeta(EnderIO.blockTelePad))
             .build();
     }
 
     @Override
-    protected Vector3i getControllerOffset() {
+    protected Vector3i getControllerOffset(TileTelePad te) {
         return new Vector3i(-1, 0, 1);
     }
 
     @Override
-    public String getRequiredMod() {
-        return "EnderIO";
+    protected ExtendedFacing getDefaultStructureFacing(ExtendedFacing aSide, TileTelePad te) {
+        return ExtendedFacing.UP_NORMAL_VERTICAL;
     }
 
     public static void registerSelf() {

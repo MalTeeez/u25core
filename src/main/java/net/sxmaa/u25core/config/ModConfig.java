@@ -10,4 +10,8 @@ public class ModConfig {
     @Config.Comment("Toggle some unused features in EnderIO if present, such as Gas Conduits, make item conduits more useful.")
     @Config.DefaultBoolean(true)
     public static boolean enderIOTweaks;
+
+    @Config.Comment("Add StructureLib support for Reika's Multiblocks so the yshow up in NEI & Ingame with the projector.")
+    @Config.DefaultBoolean(true)
+    public static boolean reikaStructureLibMultiblocks;
 }

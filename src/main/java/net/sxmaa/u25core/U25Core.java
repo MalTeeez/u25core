@@ -1,5 +1,7 @@
 package net.sxmaa.u25core;
 
+import net.minecraft.client.Minecraft;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,12 +11,17 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 @Mod(
     modid = U25Core.MODID,
     name = "U25Core",
     version = Tags.VERSION,
-    dependencies = "required-after:Forge;" + "after:structurelib;"
+    dependencies = "after:structurelib;" + "after:DragonAPI;"
+        + "after:CaveControl;"
+        + "after:ChromatiCraft;"
+        + "after:ReactorCraft;"
         + "after:EnderIO;"
         + "before:blockrenderer6343;"
         + "required-after:unimixins;"
@@ -52,5 +59,10 @@ public class U25Core {
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {
         proxy.serverStarting(event);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void chat(String message) {
+        Minecraft.getMinecraft().thePlayer.sendChatMessage(message);
     }
 }
