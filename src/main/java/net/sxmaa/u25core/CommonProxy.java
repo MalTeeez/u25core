@@ -4,6 +4,7 @@ import net.minecraft.item.Item;
 import net.sxmaa.u25core.common.multiblocks.DebugItem;
 import net.sxmaa.u25core.common.multiblocks.TelepadMultiblock;
 import net.sxmaa.u25core.common.multiblocks.reactorcraft.PlasmaInjectorMultiblock;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.ToroidMagnetsMultiblock;
 import net.sxmaa.u25core.config.ModConfig;
 
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
@@ -53,6 +54,7 @@ public class CommonProxy {
 
         if (Loader.isModLoaded("ReactorCraft")) {
             PlasmaInjectorMultiblock.registerSelf();
+            ToroidMagnetsMultiblock.registerSelf();
             // TestMultiblock.registerSelf();
         }
     }

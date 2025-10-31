@@ -59,6 +59,7 @@ dependencies {
     // Runtime QOL stuff
     runtimeOnly("com.github.GTNewHorizons:Angelica:1.0.0-beta63:dev")
     runtimeOnly("com.github.GTNewHorizons:CoreTweaks:0.3.3.6-GTNH:dev")
+    runtimeOnly("com.github.GTNewHorizons:WDMla:2.7.3:dev")
 
 
     // runtimeOnly(files("libs/distanthorizons-alpha11-dev.jar"))

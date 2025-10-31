@@ -26,7 +26,6 @@ public class StructureCompatGuiHandlerMixin {
         at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
     public Item useFakeItemIfReikaPlacer(ItemStack instance, Operation<Item> original) {
         if (instance.getItem() instanceof ItemReactorPlacer) {
-            // Use dummy item since we use TODO to place it if this condition matches
             return Item.getItemFromBlock(Blocks.dirt);
         }
         return original.call(instance);

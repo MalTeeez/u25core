@@ -2,9 +2,11 @@ package net.sxmaa.u25core.mixin.late.blockrenderer6343;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -15,7 +17,10 @@ import Reika.DragonAPI.Libraries.Rendering.ReikaRenderHelper;
 import blockrenderer6343.client.world.ObserverWorld;
 
 @Mixin(value = ObserverWorld.class, remap = false)
-public class ObserverWorldMixin {
+public abstract class ObserverWorldMixin {
+
+    @Shadow
+    public abstract TileEntity getTileEntity(int x, int y, int z);
 
     /**
      * When br6343 scans all the structures for the items they require, it uses the damage value of the droppped item
@@ -54,4 +59,29 @@ public class ObserverWorldMixin {
         }
         return original.call(block, amount, damage);
     }
+
+    // @WrapOperation(method = "estimateTierFromInfoContainer", at = @At(value = "NEW", target =
+    // "(Lnet/minecraft/block/Block;II)Lnet/minecraft/item/ItemStack;"))
+    // public ItemStack addDebugToNonMiddleController(Block block, int stackSize, int meta, Operation<ItemStack>
+    // original) {
+    // TileEntity originalTileEntity = this.getTileEntity(0, 64, 0);
+    // if (originalTileEntity == null) {
+    // int radius = 32;
+    // for (int dA = -radius; dA < radius; dA++) {
+    // for (int dB = -radius; dB < radius; dB++) {
+    // for (int dC = -radius; dC < radius; dC++) {
+    // int posX = dA;
+    // int posY = 64 - dB;
+    // int posZ = dC;
+    // TileEntity te = this.getTileEntity(posX, posY, posZ);
+    // if (te != null && IMultiblockInfoContainer.contains(te.getClass())) {
+    // U25Core.LOG.error("Failed to get controller multiblock at default pos. Found alternative working TE with offset
+    // {} {} {}. ", posX, posY, posZ);
+    // }
+    // }
+    // }
+    // }
+    // }
+    // return original.call(block, stackSize, meta);
+    // }
 }

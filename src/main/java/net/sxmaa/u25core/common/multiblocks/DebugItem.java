@@ -23,6 +23,10 @@ public class DebugItem extends Item {
         } else {
             U25Core.chat(String.format("TE at %d %d %d is null", x, y, z));
         }
+        // String[] slices = DebugUtil.mapBlocksAtLayer(world, x, y, z, 32);
+        // for (String slice : slices) {
+        // U25Core.chat(slice);
+        // }
         return true;
     }
 }

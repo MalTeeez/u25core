@@ -204,7 +204,10 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
         int baseZ = tileEntity.zCoord + controllerOffset.z;
         IStructureDefinition<T> structureDefinition = getAllowHotswap() ? getStructureDefinition(getSafeBlueprint())
             : STRUCTURE_DEFINITION_SURVIVAL;
-        boolean isGuiCall = elementBudget == Integer.MAX_VALUE && env.getSource() instanceof CreativeItemSource;
+        // Force creative construct for gui builds
+        if (elementBudget == Integer.MAX_VALUE && env.getSource() instanceof CreativeItemSource) {
+            return -2;
+        }
 
         int structureState = structureDefinition.survivalBuild(
             tileEntity,
@@ -218,10 +221,10 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
             0,
             0,
             0,
-            isGuiCall ? elementBudget : getElementBudgetFromTriggerItem(item, elementBudget),
+            getElementBudgetFromTriggerItem(item, elementBudget),
             env,
             false);
-        if (structureState == -1) {
+        if (structureState == -1 || structureState == 0) {
             postConstructCheck(tileEntity, aSide);
         }
         return structureState;
@@ -247,6 +250,7 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
 
     /**
      * An optional function to run after building / adding to the structure.
+     * We can not guarantee that this check is only called when the structure is fully done.
      * Intended for forcing manual checks of multiblock complete-ness.
      */
     protected void postConstructCheck(T te, ExtendedFacing facing) {};

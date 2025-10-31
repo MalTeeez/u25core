@@ -24,7 +24,7 @@ public class StructureUtilityMixin {
     @ModifyExpressionValue(
         method = "survivalPlaceBlock(Lnet/minecraft/item/ItemStack;Lcom/gtnewhorizon/structurelib/util/ItemStackPredicate$NBTMode;Lnet/minecraft/nbt/NBTTagCompound;ZLnet/minecraft/world/World;IIILcom/gtnewhorizon/structurelib/structure/IItemSource;Lnet/minecraft/entity/player/EntityPlayer;Ljava/util/function/Consumer;)Lcom/gtnewhorizon/structurelib/structure/IStructureElement$PlaceResult;",
         at = @At(value = "MIXINEXTRAS:EXPRESSION"))
-    private static boolean idk(boolean original, ItemStack stack) {
+    private static boolean expandItemBlockCheck(boolean original, ItemStack stack) {
         return original || stack.getItem() instanceof ItemReactorPlacer;
     }
 }
