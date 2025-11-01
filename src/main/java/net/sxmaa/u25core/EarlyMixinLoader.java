@@ -1,9 +1,8 @@
 package net.sxmaa.u25core;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import net.sxmaa.u25core.config.ModConfig;
 
 import com.gtnewhorizon.gtnhmixins.IEarlyMixinLoader;
 
@@ -20,7 +19,13 @@ public class EarlyMixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public List<String> getMixins(Set<String> loadedCoreMods) {
-        return Collections.emptyList();
+        List<String> mixins = new ArrayList<>();
+
+        if (ModConfig.enableLightAndMoodUpdateCrashPrevention) {
+            mixins.add("crashcatchers.MixinWorld");
+        }
+
+        return mixins;
     }
 
     @Override

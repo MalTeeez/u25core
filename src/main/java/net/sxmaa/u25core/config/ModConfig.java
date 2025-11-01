@@ -14,4 +14,8 @@ public class ModConfig {
     @Config.Comment("Add StructureLib support for other mods multiblocks so they show up in NEI & ingame with the projector.")
     @Config.DefaultBoolean(true)
     public static boolean reikaStructureLibMultiblocks;
+
+    @Config.Comment("Prevents a light & mood update (World.func_147467_a) if the provided chunk parameter (p_147467_3_) is null. ")
+    @Config.DefaultBoolean(true)
+    public static boolean enableLightAndMoodUpdateCrashPrevention;
 }
