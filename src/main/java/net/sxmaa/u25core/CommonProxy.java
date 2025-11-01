@@ -29,10 +29,11 @@ public class CommonProxy {
 
         ModIntegration.init();
 
-        registerMultiblocks();
+        if (ModConfig.reikaStructureLibMultiblocks) {
+            U25Multiblock.init();
+        }
 
         GameRegistry.registerItem(debugItem = new DebugItem(), debugItem.getUnlocalizedName());
-
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
@@ -43,8 +44,4 @@ public class CommonProxy {
 
     // register server commands in this event handler (Remove if not needed)
     public void serverStarting(FMLServerStartingEvent event) {}
-
-    public void registerMultiblocks() {
-        U25Multiblock.init();
-    }
 }

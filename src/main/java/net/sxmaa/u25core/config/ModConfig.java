@@ -11,7 +11,7 @@ public class ModConfig {
     @Config.DefaultBoolean(true)
     public static boolean enderIOTweaks;
 
-    @Config.Comment("Add StructureLib support for Reika's Multiblocks so the yshow up in NEI & Ingame with the projector.")
+    @Config.Comment("Add StructureLib support for other mods multiblocks so they show up in NEI & ingame with the projector.")
     @Config.DefaultBoolean(true)
     public static boolean reikaStructureLibMultiblocks;
 }
