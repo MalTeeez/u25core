@@ -53,7 +53,7 @@ dependencies {
 
 
     // Required at runtime by devOnlyNonPublishable
-    runtimeOnly(files("libs/chromatifixes-1.12.5-pre-dev.jar"))
+    runtimeOnly(files("libs/chromatifixes-1.12.5-dev.jar"))
 
 
     // Runtime QOL stuff
