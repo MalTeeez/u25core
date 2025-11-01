@@ -13,9 +13,13 @@ public class ModConfig {
 
     @Config.Comment("Add StructureLib support for other mods multiblocks so they show up in NEI & ingame with the projector.")
     @Config.DefaultBoolean(true)
-    public static boolean reikaStructureLibMultiblocks;
+    public static boolean externalStructureLibMultiblocks;
 
     @Config.Comment("Prevents a light & mood update (World.func_147467_a) if the provided chunk parameter (p_147467_3_) is null. ")
     @Config.DefaultBoolean(true)
     public static boolean enableLightAndMoodUpdateCrashPrevention;
+
+    @Config.Comment("Add the DefenseTech Thermobaric/Nuclear Explosion sound to IC2 Nuke Explosions. Requires both mods to be active.")
+    @Config.DefaultBoolean(true)
+    public static boolean addDefenseTechExplosionSoundToIC2Nuke;
 }

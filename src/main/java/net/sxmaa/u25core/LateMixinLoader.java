@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
+import ic2.core.ExplosionIC2;
 import net.sxmaa.u25core.config.ModConfig;
 
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
@@ -42,7 +43,7 @@ public class LateMixinLoader implements ILateMixinLoader {
             mixins.add("enderio.extractupgrade.NetworkedInventoryMixin");
         }
 
-        if (ModConfig.reikaStructureLibMultiblocks && loadedMods.contains("structurelib")
+        if (ModConfig.externalStructureLibMultiblocks && loadedMods.contains("structurelib")
             && loadedMods.contains("blockrenderer6343")
             && loadedMods.contains("DragonAPI")) {
             mixins.add("blockrenderer6343.BlocksToPlaceMixin");
@@ -52,6 +53,10 @@ public class LateMixinLoader implements ILateMixinLoader {
                 mixins.add("blockrenderer6343.StructureCompatGuiHandlerMixin");
                 mixins.add("blockrenderer6343.StructureUtilityMixin");
             }
+        }
+
+        if (ModConfig.addDefenseTechExplosionSoundToIC2Nuke && loadedMods.contains("DefenseTech") && loadedMods.contains("IC2")) {
+            mixins.add("ic2.ExplosionIC2Mixin");
         }
 
         return mixins;
