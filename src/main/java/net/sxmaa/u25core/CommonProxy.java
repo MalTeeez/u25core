@@ -2,15 +2,12 @@ package net.sxmaa.u25core;
 
 import net.minecraft.item.Item;
 import net.sxmaa.u25core.common.multiblocks.DebugItem;
-import net.sxmaa.u25core.common.multiblocks.TelepadMultiblock;
-import net.sxmaa.u25core.common.multiblocks.reactorcraft.PlasmaInjectorMultiblock;
-import net.sxmaa.u25core.common.multiblocks.reactorcraft.ToroidMagnetsMultiblock;
 import net.sxmaa.u25core.config.ModConfig;
+import net.sxmaa.u25core.registry.U25Multiblock;
 
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
 import com.gtnewhorizon.gtnhlib.config.ConfigurationManager;
 
-import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -48,14 +45,6 @@ public class CommonProxy {
     public void serverStarting(FMLServerStartingEvent event) {}
 
     public void registerMultiblocks() {
-        if (Loader.isModLoaded("EnderIO")) {
-            TelepadMultiblock.registerSelf();
-        }
-
-        if (Loader.isModLoaded("ReactorCraft")) {
-            PlasmaInjectorMultiblock.registerSelf();
-            ToroidMagnetsMultiblock.registerSelf();
-            // TestMultiblock.registerSelf();
-        }
+        U25Multiblock.init();
     }
 }

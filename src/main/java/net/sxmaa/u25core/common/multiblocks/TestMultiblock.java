@@ -1,8 +1,7 @@
-package net.sxmaa.u25core.common.multiblocks.reactorcraft;
+package net.sxmaa.u25core.common.multiblocks;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntityChest;
-import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
 
 import org.joml.Vector3i;
 
@@ -13,9 +12,6 @@ import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import Reika.ReactorCraft.Registry.ReactorTiles;
 
 /**
- * TODO:
- * When using ~ while registering as the controller we crash, but if we launch with I and then hotswap I to ~
- * We not only see the TileEntity, but also the other blocks
  */
 public class TestMultiblock extends IExternalMultiblock<TileEntityChest> {
 
@@ -51,9 +47,5 @@ public class TestMultiblock extends IExternalMultiblock<TileEntityChest> {
     @Override
     protected String getControllerChar() {
         return "C";
-    }
-
-    public static void registerSelf() {
-        registerInstance(new TestMultiblock());
     }
 }

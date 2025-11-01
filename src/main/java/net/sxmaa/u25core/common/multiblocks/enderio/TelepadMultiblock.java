@@ -1,4 +1,6 @@
-package net.sxmaa.u25core.common.multiblocks;
+package net.sxmaa.u25core.common.multiblocks.enderio;
+
+import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
 
 import org.joml.Vector3i;
 
@@ -37,9 +39,5 @@ public class TelepadMultiblock extends IExternalMultiblock<TileTelePad> {
     @Override
     protected ExtendedFacing getDefaultStructureFacing(ExtendedFacing aSide, TileTelePad te) {
         return ExtendedFacing.UP_NORMAL_VERTICAL;
-    }
-
-    public static void registerSelf() {
-        registerInstance(new TelepadMultiblock());
     }
 }

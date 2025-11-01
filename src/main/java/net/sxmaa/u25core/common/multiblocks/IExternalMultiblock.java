@@ -18,6 +18,7 @@ import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
 
 import blockrenderer6343.api.utils.CreativeItemSource;
+import blockrenderer6343.client.world.TrackedDummyWorld;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -205,7 +206,7 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
         IStructureDefinition<T> structureDefinition = getAllowHotswap() ? getStructureDefinition(getSafeBlueprint())
             : STRUCTURE_DEFINITION_SURVIVAL;
         // Force creative construct for gui builds
-        if (elementBudget == Integer.MAX_VALUE && env.getSource() instanceof CreativeItemSource) {
+        if (env.getSource() instanceof CreativeItemSource || tileEntity.getWorldObj() instanceof TrackedDummyWorld) {
             return -2;
         }
 
@@ -328,10 +329,9 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
 
     /**
      * Registers this class with its default values.
-     * Don't forget to implement this method yourself.
      */
-    public static void registerSelf() {
-        registerInstance(null);
+    public void registerSelf() {
+        registerInstance(this);
     }
 
 }

@@ -62,7 +62,7 @@ dependencies {
     runtimeOnly("com.github.GTNewHorizons:WDMla:2.7.3:dev")
 
 
-    // runtimeOnly(files("libs/distanthorizons-alpha11-dev.jar"))
+    //runtimeOnly(files("libs/distanthorizons-alpha11-dev.jar"))
     //runtimeOnly("com.github.GTNewHorizons:Climate-Control:0.10.0-GTNH:dev")
     //runtimeOnly(rfg.deobf(files("libs/BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar")))
     //runtimeOnly(rfg.deobf(files("libs/journeymap-1.7.10-5.2.10-unlimited.jar")))

@@ -182,8 +182,4 @@ public class ToroidMagnetsMultiblock extends IExternalMultiblock<TileEntityFusio
     protected String getControllerChar() {
         return "M";
     }
-
-    public static void registerSelf() {
-        registerInstance(new ToroidMagnetsMultiblock());
-    }
 }

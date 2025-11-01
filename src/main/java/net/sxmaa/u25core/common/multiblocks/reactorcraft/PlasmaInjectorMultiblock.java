@@ -102,8 +102,4 @@ public class PlasmaInjectorMultiblock extends IExternalMultiblock<TileEntityFusi
     protected String getControllerChar() {
         return "I";
     }
-
-    public static void registerSelf() {
-        registerInstance(new PlasmaInjectorMultiblock());
-    }
 }
