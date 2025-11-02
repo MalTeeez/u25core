@@ -22,4 +22,12 @@ public class ModConfig {
     @Config.Comment("Add the DefenseTech Thermobaric/Nuclear Explosion sound to IC2 Nuke Explosions. Requires both mods to be active.")
     @Config.DefaultBoolean(true)
     public static boolean addDefenseTechExplosionSoundToIC2Nuke;
+
+    @Config.Comment("Nerf the ChromatiCraft Enhanced Potion Pendants.")
+    @Config.DefaultBoolean(true)
+    public static boolean nerfCCEnhancedPendants;
+
+    @Config.Comment("Add a cast cost to the ChromatiCraft handheld guns.")
+    @Config.DefaultBoolean(true)
+    public static boolean nerfCCGuns;
 }

@@ -6,7 +6,6 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import ic2.core.ExplosionIC2;
 import net.sxmaa.u25core.config.ModConfig;
 
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
@@ -57,6 +56,17 @@ public class LateMixinLoader implements ILateMixinLoader {
 
         if (ModConfig.addDefenseTechExplosionSoundToIC2Nuke && loadedMods.contains("DefenseTech") && loadedMods.contains("IC2")) {
             mixins.add("ic2.ExplosionIC2Mixin");
+        }
+
+
+        if (loadedMods.contains("ChromatiCraft")) {
+            if (ModConfig.nerfCCEnhancedPendants) {
+                mixins.add("chromaticraft.pendantnerf.ItemBoostedPendantMixin");
+                mixins.add("chromaticraft.pendantnerf.ItemPendantMixin");
+            }
+            if (ModConfig.nerfCCGuns) {
+                mixins.add("chromaticraft.gunnerf.ItemProjectileFiringToolMixin");
+            }
         }
 
         return mixins;

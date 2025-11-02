@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
-@Mixin(value = ExplosionIC2.class)
+@Mixin(value = ExplosionIC2.class, remap = false)
 public abstract class ExplosionIC2Mixin {
 
     @Shadow

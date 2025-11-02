@@ -1,5 +1,4 @@
-- Tweak CC potion medaillons to be you know - less op
 - Try making Realistic World type (BOP + RTG) more hilly, probably in https://github.com/GTNewHorizons/Realistic-Terrain-Generation/blob/master/src/main/java/rtg/world/gen/terrain/TerrainBase.java#L24
 - multiblocks:
   - dragonic energy core
-    - reactorcraft turbines & fusion reactor
+  - reactorcraft hp turbines
