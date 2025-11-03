@@ -8,15 +8,12 @@ import blockrenderer6343.client.world.TrackedDummyWorld;
 import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
 import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
-import com.gtnewhorizon.structurelib.structure.IStructureElement;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;
-import cpw.mods.fml.common.FMLLog;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import net.sxmaa.u25core.U25Core;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
 import net.sxmaa.u25core.mixin.late.blockrenderer6343.BlockTurbineMultiAccessor;
 import net.sxmaa.u25core.util.DirectionUtil;
@@ -138,14 +135,9 @@ public class HighPressureTurbineMultiblock extends IExternalMultiblock<TileEntit
 
     @Override
     protected IStructureDefinition<TileEntityHiPTurbine> getStructureDefinition(String[][] blueprint) {
-        IStructureElement<TileEntityHiPTurbine> rotor_core = StructureUtility.ofBlock(ReactorTiles.BIGTURBINE.getBlockInstance(), ReactorTiles.BIGTURBINE.getBlockMetadata());
-        rotor_core = StructureUtility.onElementPass(controller -> {
-            FMLLog.getLogger().info("checked controller pass");
-        }, rotor_core);
-
         return StructureDefinition.<TileEntityHiPTurbine>builder()
             .addShape("main", blueprint)
-            .addElement('R', rotor_core)
+            .addElement('R', StructureUtility.ofBlock(ReactorTiles.BIGTURBINE.getBlockInstance(), ReactorTiles.BIGTURBINE.getBlockMetadata()))
             .addElement('T', StructureUtility.ofBlock(ReactorTiles.BIGTURBINE.getBlockInstance(), ReactorTiles.BIGTURBINE.getBlockMetadata()))
             .addElement('L', StructureUtility.ofBlock(ReactorTiles.STEAMLINE.getBlockInstance(), ReactorTiles.STEAMLINE.getBlockMetadata()))
             .addElement('B', StructureUtility.ofBlock(ReactorBlocks.TURBINEMULTI.getBlockInstance(), 0))

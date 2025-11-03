@@ -52,6 +52,8 @@ public class LateMixinLoader implements ILateMixinLoader {
                 mixins.add("blockrenderer6343.StructureCompatGuiHandlerMixin");
                 mixins.add("blockrenderer6343.StructureUtilityMixin");
                 mixins.add("blockrenderer6343.BlockTurbineMultiAccessor");
+                mixins.add("blockrenderer6343.BlockGeneratorMultiAccessor");
+                mixins.add("blockrenderer6343.BlockFlywheelMultiAccessor");
             }
         }
 

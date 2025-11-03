@@ -1,5 +1,6 @@
 package net.sxmaa.u25core.common.multiblocks.reactorcraft;
 
+import Reika.ReactorCraft.Blocks.Multi.BlockFlywheelMulti;
 import Reika.ReactorCraft.Blocks.Multi.BlockSolenoidMulti;
 import Reika.ReactorCraft.Registry.ReactorBlocks;
 import Reika.ReactorCraft.Registry.ReactorTiles;
@@ -14,6 +15,7 @@ import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
+import net.sxmaa.u25core.mixin.late.blockrenderer6343.BlockFlywheelMultiAccessor;
 import net.sxmaa.u25core.util.DirectionUtil;
 import org.joml.Vector3i;
 
@@ -54,11 +56,11 @@ public class TurbineFlywheelMultiblock extends IExternalMultiblock<TileEntityRea
         Block block = world.getBlock(te.xCoord, te.yCoord + 1, te.zCoord);
         int blockMeta = world.getBlockMetadata(te.xCoord, te.yCoord + 1, te.zCoord);
 
-        if (block instanceof BlockSolenoidMulti && (blockMeta == 5 || blockMeta == 13)) {
-            Boolean ret = ((BlockSolenoidMulti) block)
+        if (block instanceof BlockFlywheelMulti && (blockMeta == 8 || blockMeta == 0)) {
+            Boolean ret = ((BlockFlywheelMulti) block)
                 .checkForFullMultiBlock(world, te.xCoord, te.yCoord + 1, te.zCoord, ForgeDirection.NORTH, null);
             if (ret != null && ret) {
-                ((BlockSolenoidMulti) block).onCreateFullMultiBlock(world, te.xCoord, te.yCoord + 1, te.zCoord, ret);
+                ((BlockFlywheelMultiAccessor) block).invokeOnCreateFullMultiBlock(world, te.xCoord, te.yCoord + 1, te.zCoord, ret);
             }
         }
     }

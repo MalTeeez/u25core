@@ -1,6 +1,6 @@
 package net.sxmaa.u25core.common.multiblocks.reactorcraft;
 
-import Reika.ReactorCraft.Blocks.Multi.BlockSolenoidMulti;
+import Reika.ReactorCraft.Blocks.Multi.BlockGeneratorMulti;
 import Reika.ReactorCraft.Registry.ReactorBlocks;
 import Reika.ReactorCraft.Registry.ReactorTiles;
 import Reika.ReactorCraft.TileEntities.TileEntityReactorGenerator;
@@ -13,8 +13,8 @@ import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import net.sxmaa.u25core.U25Core;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
+import net.sxmaa.u25core.mixin.late.blockrenderer6343.BlockGeneratorMultiAccessor;
 import net.sxmaa.u25core.util.DirectionUtil;
 import org.joml.Vector3i;
 
@@ -56,14 +56,15 @@ public class TurbineGeneratorMultiblock extends IExternalMultiblock<TileEntityRe
         if (world instanceof TrackedDummyWorld) {
             return;
         }
-        Block block = world.getBlock(te.xCoord, te.yCoord + 1, te.zCoord);
-        int blockMeta = world.getBlockMetadata(te.xCoord, te.yCoord + 1, te.zCoord);
+        BlockPos pos = DirectionUtil.offsetByForward(te.xCoord, te.yCoord, te.zCoord, facing.getDirection(), 9, 0);
+        Block block = world.getBlock(pos.x, pos.y, pos.z);
+        int blockMeta = world.getBlockMetadata(pos.x, pos.y, pos.z);
 
-        if (block instanceof BlockSolenoidMulti && (blockMeta == 5 || blockMeta == 13)) {
-            Boolean ret = ((BlockSolenoidMulti) block)
-                .checkForFullMultiBlock(world, te.xCoord, te.yCoord + 1, te.zCoord, ForgeDirection.NORTH, null);
+        if (block instanceof BlockGeneratorMulti && (blockMeta == 0 || blockMeta == 8)) {
+            Boolean ret = ((BlockGeneratorMulti) block)
+                .checkForFullMultiBlock(world,pos.x, pos.y, pos.z, DirectionUtil.turn180(facing.getDirection()), null);
             if (ret != null && ret) {
-                ((BlockSolenoidMulti) block).onCreateFullMultiBlock(world, te.xCoord, te.yCoord + 1, te.zCoord, ret);
+                ((BlockGeneratorMultiAccessor) block).invokeOnCreateFullMultiBlock(world, pos.x, pos.y, pos.z, ret);
             }
         }
     }
