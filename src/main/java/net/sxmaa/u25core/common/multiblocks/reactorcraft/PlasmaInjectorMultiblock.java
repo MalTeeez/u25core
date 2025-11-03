@@ -77,7 +77,7 @@ public class PlasmaInjectorMultiblock extends IExternalMultiblock<TileEntityFusi
     }
 
     @Override
-    protected Vector3i getControllerOffset(TileEntityFusionInjector te) {
+    protected Vector3i getControllerOffset(TileEntityFusionInjector te, ExtendedFacing facing) {
         return switch (te.getFacing()) {
             case NORTH -> new Vector3i(2, -1, 1);
             case EAST -> new Vector3i(-1, -1, 2);

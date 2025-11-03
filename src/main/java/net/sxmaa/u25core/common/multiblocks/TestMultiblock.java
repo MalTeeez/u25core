@@ -1,5 +1,6 @@
 package net.sxmaa.u25core.common.multiblocks;
 
+import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntityChest;
 
@@ -40,7 +41,7 @@ public class TestMultiblock extends IExternalMultiblock<TileEntityChest> {
     }
 
     @Override
-    protected Vector3i getControllerOffset(TileEntityChest te) {
+    protected Vector3i getControllerOffset(TileEntityChest te, ExtendedFacing facing) {
         return new Vector3i(0, 0, 0);
     }
 

@@ -51,6 +51,7 @@ public class LateMixinLoader implements ILateMixinLoader {
             if (loadedMods.contains("ReactorCraft")) {
                 mixins.add("blockrenderer6343.StructureCompatGuiHandlerMixin");
                 mixins.add("blockrenderer6343.StructureUtilityMixin");
+                mixins.add("blockrenderer6343.BlockTurbineMultiAccessor");
             }
         }
 

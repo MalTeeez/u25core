@@ -171,7 +171,9 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
 
     @Override
     public void construct(ItemStack item, boolean hintsOnly, T tileEntity, ExtendedFacing aSide) {
-        Vector3i controllerOffset = getControllerOffset(tileEntity);
+        ExtendedFacing facing = getDefaultStructureFacing(aSide, tileEntity) == null ? aSide : getDefaultStructureFacing(aSide, tileEntity);
+        Vector3i controllerOffset = getControllerOffset(tileEntity, facing);
+
         int baseX = tileEntity.xCoord + controllerOffset.x;
         int baseY = tileEntity.yCoord + controllerOffset.y;
         int baseZ = tileEntity.zCoord + controllerOffset.z;
@@ -183,7 +185,7 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
             item,
             "main",
             tileEntity.getWorldObj(),
-            getDefaultStructureFacing(aSide, tileEntity) == null ? aSide : getDefaultStructureFacing(aSide, tileEntity),
+            facing,
             baseX,
             baseY,
             baseZ,
@@ -191,20 +193,36 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
             0,
             0,
             hintsOnly);
+
+        structureDefinition.check(
+            tileEntity,
+            "main",
+            tileEntity.getWorldObj(),
+            facing,
+            baseX,
+            baseY,
+            baseZ,
+            0,
+            0,
+            0,
+            false);
         if (!hintsOnly && buildDone) {
-            postConstructCheck(tileEntity, aSide);
+            postConstructCheck(tileEntity, facing);
         }
     }
 
     @Override
     public int survivalConstruct(ItemStack item, int elementBudget, ISurvivalBuildEnvironment env, T tileEntity,
         ExtendedFacing aSide) {
-        Vector3i controllerOffset = getControllerOffset(tileEntity);
+        ExtendedFacing facing = getDefaultStructureFacing(aSide, tileEntity) == null ? aSide : getDefaultStructureFacing(aSide, tileEntity);
+        Vector3i controllerOffset = getControllerOffset(tileEntity, facing);
+
         int baseX = tileEntity.xCoord + controllerOffset.x;
         int baseY = tileEntity.yCoord + controllerOffset.y;
         int baseZ = tileEntity.zCoord + controllerOffset.z;
         IStructureDefinition<T> structureDefinition = getAllowHotswap() ? getStructureDefinition(getSafeBlueprint())
             : STRUCTURE_DEFINITION_SURVIVAL;
+
         // Force creative construct for gui builds
         if (env.getSource() instanceof CreativeItemSource || tileEntity.getWorldObj() instanceof TrackedDummyWorld) {
             return -2;
@@ -215,7 +233,7 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
             item,
             "main",
             tileEntity.getWorldObj(),
-            getDefaultStructureFacing(aSide, tileEntity) == null ? aSide : getDefaultStructureFacing(aSide, tileEntity),
+            facing,
             baseX,
             baseY,
             baseZ,
@@ -225,8 +243,21 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
             getElementBudgetFromTriggerItem(item, elementBudget),
             env,
             false);
+
+        structureDefinition.check(
+            tileEntity,
+            "main",
+            tileEntity.getWorldObj(),
+            facing,
+            baseX,
+            baseY,
+            baseZ,
+            0,
+            0,
+            0,
+            false);
         if (structureState == -1 || structureState == 0) {
-            postConstructCheck(tileEntity, aSide);
+            postConstructCheck(tileEntity, facing);
         }
         return structureState;
     }
@@ -267,7 +298,7 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
      * Provides the relative offset from 0, 0, 0 to the multiblock's controller.
      * Called once during construction.
      */
-    protected Vector3i getControllerOffset(T te) {
+    protected Vector3i getControllerOffset(T te, ExtendedFacing facing) {
         return new Vector3i(0, 0, 0);
     };
 

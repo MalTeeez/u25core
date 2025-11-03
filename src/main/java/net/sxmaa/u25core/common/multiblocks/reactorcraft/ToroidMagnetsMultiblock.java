@@ -169,7 +169,7 @@ public class ToroidMagnetsMultiblock extends IExternalMultiblock<TileEntityFusio
     }
 
     @Override
-    protected Vector3i getControllerOffset(TileEntityFusionMarker te) {
+    protected Vector3i getControllerOffset(TileEntityFusionMarker te, ExtendedFacing facing) {
         return new Vector3i(14, 1, -14);
     }
 

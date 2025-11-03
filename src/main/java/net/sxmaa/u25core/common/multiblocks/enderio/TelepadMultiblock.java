@@ -32,7 +32,7 @@ public class TelepadMultiblock extends IExternalMultiblock<TileTelePad> {
     }
 
     @Override
-    protected Vector3i getControllerOffset(TileTelePad te) {
+    protected Vector3i getControllerOffset(TileTelePad te, ExtendedFacing facing) {
         return new Vector3i(-1, 0, 1);
     }
 

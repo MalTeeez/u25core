@@ -127,7 +127,7 @@ public class SolenoidMultiblock extends IExternalMultiblock<TileEntitySolenoidMa
     }
 
     @Override
-    protected Vector3i getControllerOffset(TileEntitySolenoidMagnet te) {
+    protected Vector3i getControllerOffset(TileEntitySolenoidMagnet te, ExtendedFacing facing) {
         return new Vector3i(8, 1, -8);
     }
 

@@ -5,10 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import net.sxmaa.u25core.U25Core;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
 import net.sxmaa.u25core.common.multiblocks.enderio.TelepadMultiblock;
-import net.sxmaa.u25core.common.multiblocks.reactorcraft.PlasmaInjectorMultiblock;
-import net.sxmaa.u25core.common.multiblocks.reactorcraft.PreheaterMultiblock;
-import net.sxmaa.u25core.common.multiblocks.reactorcraft.SolenoidMultiblock;
-import net.sxmaa.u25core.common.multiblocks.reactorcraft.ToroidMagnetsMultiblock;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.*;
 
 import cpw.mods.fml.common.Loader;
 
@@ -19,7 +16,10 @@ public enum U25Multiblock {
     PLASMA_INJECTOR(PlasmaInjectorMultiblock.class, "ReactorCraft"),
     TOROID_MAGNETS(ToroidMagnetsMultiblock.class, "ReactorCraft"),
     PREHEATER(PreheaterMultiblock.class, "ReactorCraft"),
-    SOLENOID(SolenoidMultiblock.class, "ReactorCraft");
+    SOLENOID(SolenoidMultiblock.class, "ReactorCraft"),
+    HIGH_PRESSURE_TURBINE(HighPressureTurbineMultiblock.class, "ReactorCraft"),
+    TURBINE_FLYWHEEL(TurbineFlywheelMultiblock.class, "ReactorCraft"),
+    TURBINE_GENERATOR(TurbineGeneratorMultiblock.class, "ReactorCraft");
 
     private final IExternalMultiblock instance;
 

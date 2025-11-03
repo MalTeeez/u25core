@@ -132,7 +132,7 @@ public class PreheaterMultiblock extends IExternalMultiblock<TileEntityFusionHea
     }
 
     @Override
-    protected Vector3i getControllerOffset(TileEntityFusionHeater te) {
+    protected Vector3i getControllerOffset(TileEntityFusionHeater te, ExtendedFacing facing) {
         return new Vector3i(2, 4, -2);
     }
 
