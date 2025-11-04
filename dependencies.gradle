@@ -55,8 +55,12 @@ dependencies {
 
     // Required at runtime by devOnlyNonPublishable
     runtimeOnly(files("libs/chromatifixes-1.12.5-dev.jar"))
-    runtimeOnly(files("libs/DefenseTech-1.1-dev.jar"))
-    runtimeOnly(rfg.deobf(files("libs/Mekanism-Community-Edition-1.7.10-9.10.42.jar")))
+    if (file("libs/DefenseTech-1.1-dev.jar").exists()) {
+        runtimeOnly(files("libs/DefenseTech-1.1-dev.jar"))
+    }
+    if (file("libs/Mekanism-Community-Edition-1.7.10-9.10.42.jar").exists()) {
+        runtimeOnly(rfg.deobf(files("libs/Mekanism-Community-Edition-1.7.10-9.10.42.jar")))
+    }
 
     // Runtime QOL stuff
     runtimeOnly("com.github.GTNewHorizons:Angelica:1.0.0-beta63:dev")
