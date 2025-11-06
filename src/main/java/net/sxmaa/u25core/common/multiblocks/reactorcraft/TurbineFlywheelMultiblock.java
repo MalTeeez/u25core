@@ -1,25 +1,28 @@
 package net.sxmaa.u25core.common.multiblocks.reactorcraft;
 
-import Reika.ReactorCraft.Blocks.Multi.BlockFlywheelMulti;
-import Reika.ReactorCraft.Blocks.Multi.BlockSolenoidMulti;
-import Reika.ReactorCraft.Registry.ReactorBlocks;
-import Reika.ReactorCraft.Registry.ReactorTiles;
-import Reika.ReactorCraft.TileEntities.TileEntityReactorFlywheel;
-import blockrenderer6343.client.world.TrackedDummyWorld;
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
-import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
-import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
 import net.sxmaa.u25core.mixin.late.blockrenderer6343.BlockFlywheelMultiAccessor;
 import net.sxmaa.u25core.util.DirectionUtil;
+
 import org.joml.Vector3i;
 
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
+import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
+import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureUtility;
+
+import Reika.ReactorCraft.Blocks.Multi.BlockFlywheelMulti;
+import Reika.ReactorCraft.Registry.ReactorBlocks;
+import Reika.ReactorCraft.Registry.ReactorTiles;
+import Reika.ReactorCraft.TileEntities.TileEntityReactorFlywheel;
+import blockrenderer6343.client.world.TrackedDummyWorld;
+
 public class TurbineFlywheelMultiblock extends IExternalMultiblock<TileEntityReactorFlywheel> {
+
     @Override
     protected String[][] getStructureBlueprint() {
         // spotless:off
@@ -39,7 +42,10 @@ public class TurbineFlywheelMultiblock extends IExternalMultiblock<TileEntityRea
     protected IStructureDefinition<TileEntityReactorFlywheel> getStructureDefinition(String[][] blueprint) {
         return StructureDefinition.<TileEntityReactorFlywheel>builder()
             .addShape("main", blueprint)
-            .addElement('W', StructureUtility.ofBlock(ReactorTiles.FLYWHEEL.getBlockInstance(), ReactorTiles.FLYWHEEL.getBlockMetadata()))
+            .addElement(
+                'W',
+                StructureUtility
+                    .ofBlock(ReactorTiles.FLYWHEEL.getBlockInstance(), ReactorTiles.FLYWHEEL.getBlockMetadata()))
             .addElement('C', StructureUtility.ofBlock(ReactorBlocks.FLYWHEELMULTI.getBlockInstance(), 0))
             .addElement('D', StructureUtility.ofBlock(ReactorBlocks.FLYWHEELMULTI.getBlockInstance(), 1))
             .addElement('F', StructureUtility.ofBlock(ReactorBlocks.FLYWHEELMULTI.getBlockInstance(), 2))
@@ -60,7 +66,8 @@ public class TurbineFlywheelMultiblock extends IExternalMultiblock<TileEntityRea
             Boolean ret = ((BlockFlywheelMulti) block)
                 .checkForFullMultiBlock(world, te.xCoord, te.yCoord + 1, te.zCoord, ForgeDirection.NORTH, null);
             if (ret != null && ret) {
-                ((BlockFlywheelMultiAccessor) block).invokeOnCreateFullMultiBlock(world, te.xCoord, te.yCoord + 1, te.zCoord, ret);
+                ((BlockFlywheelMultiAccessor) block)
+                    .invokeOnCreateFullMultiBlock(world, te.xCoord, te.yCoord + 1, te.zCoord, ret);
             }
         }
     }

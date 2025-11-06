@@ -57,10 +57,10 @@ public class LateMixinLoader implements ILateMixinLoader {
             }
         }
 
-        if (ModConfig.addDefenseTechExplosionSoundToIC2Nuke && loadedMods.contains("DefenseTech") && loadedMods.contains("IC2")) {
+        if (ModConfig.addDefenseTechExplosionSoundToIC2Nuke && loadedMods.contains("DefenseTech")
+            && loadedMods.contains("IC2")) {
             mixins.add("ic2.ExplosionIC2Mixin");
         }
-
 
         if (loadedMods.contains("ChromatiCraft")) {
             if (ModConfig.nerfCCEnhancedPendants) {

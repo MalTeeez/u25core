@@ -1,11 +1,11 @@
 package net.sxmaa.u25core.common.multiblocks;
 
-import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntityChest;
 
 import org.joml.Vector3i;
 
+import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
 import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureDefinition;
 import com.gtnewhorizon.structurelib.structure.StructureUtility;

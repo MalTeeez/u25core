@@ -84,7 +84,8 @@ public class DirectionUtil {
      * @param vertical Number of blocks to offset vertically (positive = up, negative = down)
      * @return New BlockPos offset to the right
      */
-    public static BlockPos offsetByRight(int x, int y, int z, ForgeDirection facing, int amount, int vertical, boolean relative) {
+    public static BlockPos offsetByRight(int x, int y, int z, ForgeDirection facing, int amount, int vertical,
+        boolean relative) {
         BlockPos pos = offsetByRight(new BlockPos(x, y, z), facing, amount, vertical);
         if (relative) {
             pos.x = x - pos.x;
@@ -134,7 +135,8 @@ public class DirectionUtil {
      * @param vertical Number of blocks to offset vertically (positive = up, negative = down)
      * @return New BlockPos offset to the left
      */
-    public static BlockPos offsetByLeft(int x, int y, int z, ForgeDirection facing, int amount, int vertical, boolean relative) {
+    public static BlockPos offsetByLeft(int x, int y, int z, ForgeDirection facing, int amount, int vertical,
+        boolean relative) {
         BlockPos pos = offsetByLeft(new BlockPos(x, y, z), facing, amount, vertical);
         if (relative) {
             pos.x = x - pos.x;
@@ -184,7 +186,8 @@ public class DirectionUtil {
      * @param vertical Number of blocks to offset vertically (positive = up, negative = down)
      * @return New BlockPos offset backwards
      */
-    public static BlockPos offsetByBack(int x, int y, int z, ForgeDirection facing, int amount, int vertical, boolean relative) {
+    public static BlockPos offsetByBack(int x, int y, int z, ForgeDirection facing, int amount, int vertical,
+        boolean relative) {
         BlockPos pos = offsetByBack(new BlockPos(x, y, z), facing, amount, vertical);
         if (relative) {
             pos.x = x - pos.x;
@@ -233,7 +236,8 @@ public class DirectionUtil {
      * @param vertical Number of blocks to offset vertically (positive = up, negative = down)
      * @return New BlockPos offset forward
      */
-    public static BlockPos offsetByForward(int x, int y, int z, ForgeDirection facing, int amount, int vertical, boolean relative) {
+    public static BlockPos offsetByForward(int x, int y, int z, ForgeDirection facing, int amount, int vertical,
+        boolean relative) {
         BlockPos pos = offsetByForward(new BlockPos(x, y, z), facing, amount, vertical);
         if (relative) {
             pos.x = x - pos.x;
@@ -242,6 +246,5 @@ public class DirectionUtil {
         }
         return pos;
     }
-
 
 }

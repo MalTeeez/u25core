@@ -1,24 +1,28 @@
 package net.sxmaa.u25core.common.multiblocks.reactorcraft;
 
-import Reika.ReactorCraft.Blocks.Multi.BlockGeneratorMulti;
-import Reika.ReactorCraft.Registry.ReactorBlocks;
-import Reika.ReactorCraft.Registry.ReactorTiles;
-import Reika.ReactorCraft.TileEntities.TileEntityReactorGenerator;
-import blockrenderer6343.client.world.TrackedDummyWorld;
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
-import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
-import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
 import net.sxmaa.u25core.mixin.late.blockrenderer6343.BlockGeneratorMultiAccessor;
 import net.sxmaa.u25core.util.DirectionUtil;
+
 import org.joml.Vector3i;
 
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
+import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
+import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureUtility;
+
+import Reika.ReactorCraft.Blocks.Multi.BlockGeneratorMulti;
+import Reika.ReactorCraft.Registry.ReactorBlocks;
+import Reika.ReactorCraft.Registry.ReactorTiles;
+import Reika.ReactorCraft.TileEntities.TileEntityReactorGenerator;
+import blockrenderer6343.client.world.TrackedDummyWorld;
+
 public class TurbineGeneratorMultiblock extends IExternalMultiblock<TileEntityReactorGenerator> {
+
     @Override
     protected String[][] getStructureBlueprint() {
         // spotless:off
@@ -41,7 +45,10 @@ public class TurbineGeneratorMultiblock extends IExternalMultiblock<TileEntityRe
     protected IStructureDefinition<TileEntityReactorGenerator> getStructureDefinition(String[][] blueprint) {
         return StructureDefinition.<TileEntityReactorGenerator>builder()
             .addShape("main", blueprint)
-            .addElement('G', StructureUtility.ofBlock(ReactorTiles.GENERATOR.getBlockInstance(), ReactorTiles.GENERATOR.getBlockMetadata()))
+            .addElement(
+                'G',
+                StructureUtility
+                    .ofBlock(ReactorTiles.GENERATOR.getBlockInstance(), ReactorTiles.GENERATOR.getBlockMetadata()))
             .addElement('C', StructureUtility.ofBlock(ReactorBlocks.GENERATORMULTI.getBlockInstance(), 0))
             .addElement('W', StructureUtility.ofBlock(ReactorBlocks.GENERATORMULTI.getBlockInstance(), 1))
             .addElement('H', StructureUtility.ofBlock(ReactorBlocks.GENERATORMULTI.getBlockInstance(), 2))
@@ -62,7 +69,7 @@ public class TurbineGeneratorMultiblock extends IExternalMultiblock<TileEntityRe
 
         if (block instanceof BlockGeneratorMulti && (blockMeta == 0 || blockMeta == 8)) {
             Boolean ret = ((BlockGeneratorMulti) block)
-                .checkForFullMultiBlock(world,pos.x, pos.y, pos.z, DirectionUtil.turn180(facing.getDirection()), null);
+                .checkForFullMultiBlock(world, pos.x, pos.y, pos.z, DirectionUtil.turn180(facing.getDirection()), null);
             if (ret != null && ret) {
                 ((BlockGeneratorMultiAccessor) block).invokeOnCreateFullMultiBlock(world, pos.x, pos.y, pos.z, ret);
             }

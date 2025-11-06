@@ -5,7 +5,13 @@ import java.lang.reflect.InvocationTargetException;
 import net.sxmaa.u25core.U25Core;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
 import net.sxmaa.u25core.common.multiblocks.enderio.TelepadMultiblock;
-import net.sxmaa.u25core.common.multiblocks.reactorcraft.*;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.HighPressureTurbineMultiblock;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.PlasmaInjectorMultiblock;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.PreheaterMultiblock;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.SolenoidMultiblock;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.ToroidMagnetsMultiblock;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.TurbineFlywheelMultiblock;
+import net.sxmaa.u25core.common.multiblocks.reactorcraft.TurbineGeneratorMultiblock;
 
 import cpw.mods.fml.common.Loader;
 

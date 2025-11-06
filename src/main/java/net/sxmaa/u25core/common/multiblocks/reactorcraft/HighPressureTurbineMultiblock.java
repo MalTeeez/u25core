@@ -1,15 +1,5 @@
 package net.sxmaa.u25core.common.multiblocks.reactorcraft;
 
-import Reika.ReactorCraft.Blocks.Multi.BlockTurbineMulti;
-import Reika.ReactorCraft.Registry.ReactorBlocks;
-import Reika.ReactorCraft.Registry.ReactorTiles;
-import Reika.ReactorCraft.TileEntities.PowerGen.TileEntityHiPTurbine;
-import blockrenderer6343.client.world.TrackedDummyWorld;
-import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
-import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
-import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
-import com.gtnewhorizon.structurelib.structure.StructureDefinition;
-import com.gtnewhorizon.structurelib.structure.StructureUtility;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -17,7 +7,20 @@ import net.minecraftforge.common.util.ForgeDirection;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
 import net.sxmaa.u25core.mixin.late.blockrenderer6343.BlockTurbineMultiAccessor;
 import net.sxmaa.u25core.util.DirectionUtil;
+
 import org.joml.Vector3i;
+
+import com.gtnewhorizon.gtnhlib.blockpos.BlockPos;
+import com.gtnewhorizon.structurelib.alignment.enumerable.ExtendedFacing;
+import com.gtnewhorizon.structurelib.structure.IStructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureDefinition;
+import com.gtnewhorizon.structurelib.structure.StructureUtility;
+
+import Reika.ReactorCraft.Blocks.Multi.BlockTurbineMulti;
+import Reika.ReactorCraft.Registry.ReactorBlocks;
+import Reika.ReactorCraft.Registry.ReactorTiles;
+import Reika.ReactorCraft.TileEntities.PowerGen.TileEntityHiPTurbine;
+import blockrenderer6343.client.world.TrackedDummyWorld;
 
 public class HighPressureTurbineMultiblock extends IExternalMultiblock<TileEntityHiPTurbine> {
 
@@ -137,9 +140,18 @@ public class HighPressureTurbineMultiblock extends IExternalMultiblock<TileEntit
     protected IStructureDefinition<TileEntityHiPTurbine> getStructureDefinition(String[][] blueprint) {
         return StructureDefinition.<TileEntityHiPTurbine>builder()
             .addShape("main", blueprint)
-            .addElement('R', StructureUtility.ofBlock(ReactorTiles.BIGTURBINE.getBlockInstance(), ReactorTiles.BIGTURBINE.getBlockMetadata()))
-            .addElement('T', StructureUtility.ofBlock(ReactorTiles.BIGTURBINE.getBlockInstance(), ReactorTiles.BIGTURBINE.getBlockMetadata()))
-            .addElement('L', StructureUtility.ofBlock(ReactorTiles.STEAMLINE.getBlockInstance(), ReactorTiles.STEAMLINE.getBlockMetadata()))
+            .addElement(
+                'R',
+                StructureUtility
+                    .ofBlock(ReactorTiles.BIGTURBINE.getBlockInstance(), ReactorTiles.BIGTURBINE.getBlockMetadata()))
+            .addElement(
+                'T',
+                StructureUtility
+                    .ofBlock(ReactorTiles.BIGTURBINE.getBlockInstance(), ReactorTiles.BIGTURBINE.getBlockMetadata()))
+            .addElement(
+                'L',
+                StructureUtility
+                    .ofBlock(ReactorTiles.STEAMLINE.getBlockInstance(), ReactorTiles.STEAMLINE.getBlockMetadata()))
             .addElement('B', StructureUtility.ofBlock(ReactorBlocks.TURBINEMULTI.getBlockInstance(), 0))
             .addElement('H', StructureUtility.ofBlock(ReactorBlocks.TURBINEMULTI.getBlockInstance(), 1))
             .addElement('I', StructureUtility.ofBlock(ReactorBlocks.TURBINEMULTI.getBlockInstance(), 2))

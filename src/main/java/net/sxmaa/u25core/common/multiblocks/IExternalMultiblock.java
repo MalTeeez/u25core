@@ -171,7 +171,8 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
 
     @Override
     public void construct(ItemStack item, boolean hintsOnly, T tileEntity, ExtendedFacing aSide) {
-        ExtendedFacing facing = getDefaultStructureFacing(aSide, tileEntity) == null ? aSide : getDefaultStructureFacing(aSide, tileEntity);
+        ExtendedFacing facing = getDefaultStructureFacing(aSide, tileEntity) == null ? aSide
+            : getDefaultStructureFacing(aSide, tileEntity);
         Vector3i controllerOffset = getControllerOffset(tileEntity, facing);
 
         int baseX = tileEntity.xCoord + controllerOffset.x;
@@ -194,18 +195,8 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
             0,
             hintsOnly);
 
-        structureDefinition.check(
-            tileEntity,
-            "main",
-            tileEntity.getWorldObj(),
-            facing,
-            baseX,
-            baseY,
-            baseZ,
-            0,
-            0,
-            0,
-            false);
+        structureDefinition
+            .check(tileEntity, "main", tileEntity.getWorldObj(), facing, baseX, baseY, baseZ, 0, 0, 0, false);
         if (!hintsOnly && buildDone) {
             postConstructCheck(tileEntity, facing);
         }
@@ -214,7 +205,8 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
     @Override
     public int survivalConstruct(ItemStack item, int elementBudget, ISurvivalBuildEnvironment env, T tileEntity,
         ExtendedFacing aSide) {
-        ExtendedFacing facing = getDefaultStructureFacing(aSide, tileEntity) == null ? aSide : getDefaultStructureFacing(aSide, tileEntity);
+        ExtendedFacing facing = getDefaultStructureFacing(aSide, tileEntity) == null ? aSide
+            : getDefaultStructureFacing(aSide, tileEntity);
         Vector3i controllerOffset = getControllerOffset(tileEntity, facing);
 
         int baseX = tileEntity.xCoord + controllerOffset.x;
@@ -244,18 +236,8 @@ public abstract class IExternalMultiblock<T extends TileEntity> implements IMult
             env,
             false);
 
-        structureDefinition.check(
-            tileEntity,
-            "main",
-            tileEntity.getWorldObj(),
-            facing,
-            baseX,
-            baseY,
-            baseZ,
-            0,
-            0,
-            0,
-            false);
+        structureDefinition
+            .check(tileEntity, "main", tileEntity.getWorldObj(), facing, baseX, baseY, baseZ, 0, 0, 0, false);
         if (structureState == -1 || structureState == 0) {
             postConstructCheck(tileEntity, facing);
         }
