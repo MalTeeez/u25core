@@ -28,6 +28,10 @@ public class EarlyMixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
             mixins.add("crashcatchers.MixinWorld");
         }
 
+        if (ModConfig.catchInsideOfBlockCrash) {
+            mixins.add("crashcatchers.ItemRendererMixin");
+        }
+
         return mixins;
     }
 

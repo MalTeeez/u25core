@@ -30,4 +30,8 @@ public class ModConfig {
     @Config.Comment("Add a cast cost to the ChromatiCraft handheld guns.")
     @Config.DefaultBoolean(true)
     public static boolean nerfCCGuns;
+
+    @Config.Comment("Catch rare crashes due to a missing blockrenderer if inside of that block. Seems to be caused by chromaticraft.")
+    @Config.DefaultBoolean(false)
+    public static boolean catchInsideOfBlockCrash;
 }

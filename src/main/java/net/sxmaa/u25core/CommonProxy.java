@@ -29,7 +29,7 @@ public class CommonProxy {
 
         ModIntegration.init();
 
-        if (ModConfig.externalStructureLibMultiblocks) {
+        if (ModConfig.externalStructureLibMultiblocks && ModIntegration.BR_6343 && ModIntegration.STRUCTURELIB) {
             U25Multiblock.init();
         }
 
