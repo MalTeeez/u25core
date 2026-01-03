@@ -34,15 +34,15 @@
  * For more details, see https://docs.gradle.org/8.0.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
  */
 dependencies {
-    //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.8.37-GTNH:dev")
+    //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.8.48-GTNH:dev")
 
     // Library stuff
-    devOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.8.6:dev")
-    devOnlyNonPublishable("com.github.GTNewHorizons:StructureLib:1.4.24:dev")
+    devOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.8.41:dev")
+    devOnlyNonPublishable("com.github.GTNewHorizons:StructureLib:1.4.25:dev")
 
 
     // Feature Stuff
-    compileOnly("com.github.GTNewHorizons:EnderIO:2.10.3:dev") { transitive = false }
+    compileOnly("com.github.GTNewHorizons:EnderIO:2.10.12:dev") { transitive = false }
     compileOnly("com.github.GTNewHorizons:EnderCore:0.5.0:dev") { transitive = false }
 
     devOnlyNonPublishable(rfg.deobf("curse.maven:dragonapi-235591:4722480"))
@@ -50,7 +50,7 @@ dependencies {
     devOnlyNonPublishable(rfg.deobf("curse.maven:rotarycraft-235596:4721191"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:reactorcraft-235593:4721203"))
 
-    devOnlyNonPublishable("com.github.GTNewHorizons:BlockRenderer6343:1.4.2:dev") { transitive = false }
+    devOnlyNonPublishable("com.github.GTNewHorizons:BlockRenderer6343:1.4.4:dev") { transitive = false }
 
     devOnlyNonPublishable("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev") { transitive = false }
 
@@ -63,16 +63,17 @@ dependencies {
         runtimeOnly(rfg.deobf(files("libs/Mekanism-Community-Edition-1.7.10-9.10.42.jar")))
     }
     // Required by mekanism
-    runtimeOnly("com.github.GTNewHorizons:ForgeMultipart:1.7.0:dev")
+    runtimeOnly("com.github.GTNewHorizons:ForgeMultipart:1.7.2:dev")
 
     // Runtime QOL stuff
-    runtimeOnly("com.github.GTNewHorizons:Angelica:1.0.0-beta68:dev")
+    runtimeOnly("com.github.GTNewHorizons:Angelica:1.0.0-beta78-pre:dev")
     runtimeOnly("com.github.GTNewHorizons:CoreTweaks:0.3.3.6-GTNH:dev")
     runtimeOnly("com.github.GTNewHorizons:WDMla:2.7.4:dev")
 
 
-    //runtimeOnly(files("libs/distanthorizons-alpha11-dev.jar"))
-    //runtimeOnly("com.github.GTNewHorizons:Climate-Control:0.10.0-GTNH:dev")
+    runtimeOnly(files("libs/distanthorizons-alpha13-dev.jar"))
+    runtimeOnly("com.github.GTNewHorizons:Climate-Control:0.10.0-GTNH:dev")
+    devOnlyNonPublishable("com.github.GTNewHorizons:RTG:1.1.6-GTNH:dev")
     //runtimeOnly(rfg.deobf(files("libs/BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar")))
     //runtimeOnly(rfg.deobf(files("libs/journeymap-1.7.10-5.2.10-unlimited.jar")))
 }

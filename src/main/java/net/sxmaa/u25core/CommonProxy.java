@@ -8,6 +8,7 @@ import net.sxmaa.u25core.registry.U25Multiblock;
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
 import com.gtnewhorizon.gtnhlib.config.ConfigurationManager;
 
+import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
@@ -27,9 +28,8 @@ public class CommonProxy {
             throw new RuntimeException(e);
         }
 
-        ModIntegration.init();
-
-        if (ModConfig.externalStructureLibMultiblocks && ModIntegration.BR_6343 && ModIntegration.STRUCTURELIB) {
+        if (ModConfig.externalStructureLibMultiblocks && Loader.isModLoaded("blockrenderer6343")
+            && Loader.isModLoaded("structurelib")) {
             U25Multiblock.init();
         }
 

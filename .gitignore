@@ -38,4 +38,7 @@ layout.json
 libs/
 
 # keep config files so stuff runs
-!/run/config/chromatifixes.cfg
+!/run/client/config/chromatifixes.cfg
+!/run/client/config/hodgepodge.cfg
+!/run/server/config/chromatifixes.cfg
+!/run/server/config/hodgepodge.cfg.cfg

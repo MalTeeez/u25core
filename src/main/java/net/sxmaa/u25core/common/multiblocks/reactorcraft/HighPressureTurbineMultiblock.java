@@ -5,7 +5,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.sxmaa.u25core.common.multiblocks.IExternalMultiblock;
-import net.sxmaa.u25core.mixin.late.blockrenderer6343.BlockTurbineMultiAccessor;
+import net.sxmaa.u25core.mixins.late.blockrenderer6343.BlockTurbineMultiAccessor;
 import net.sxmaa.u25core.util.DirectionUtil;
 
 import org.joml.Vector3i;

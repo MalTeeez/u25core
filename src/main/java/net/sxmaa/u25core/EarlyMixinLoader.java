@@ -1,19 +1,29 @@
 package net.sxmaa.u25core;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import net.sxmaa.u25core.config.ModConfig;
+import net.sxmaa.u25core.mixins.Mixins;
 
+import com.gtnewhorizon.gtnhlib.config.ConfigException;
+import com.gtnewhorizon.gtnhlib.config.ConfigurationManager;
 import com.gtnewhorizon.gtnhmixins.IEarlyMixinLoader;
+import com.gtnewhorizon.gtnhmixins.builders.IMixins;
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
-@IFMLLoadingPlugin.SortingIndex(1001)
 public class EarlyMixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
+
+    public EarlyMixinLoader() {
+        try {
+            ConfigurationManager.registerConfig(ModConfig.class);
+        } catch (ConfigException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public String getMixinConfig() {
@@ -22,17 +32,7 @@ public class EarlyMixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     @Override
     public List<String> getMixins(Set<String> loadedCoreMods) {
-        List<String> mixins = new ArrayList<>();
-
-        if (ModConfig.enableLightAndMoodUpdateCrashPrevention) {
-            mixins.add("crashcatchers.MixinWorld");
-        }
-
-        if (ModConfig.catchInsideOfBlockCrash) {
-            mixins.add("crashcatchers.ItemRendererMixin");
-        }
-
-        return mixins;
+        return IMixins.getEarlyMixins(Mixins.class, loadedCoreMods);
     }
 
     @Override
