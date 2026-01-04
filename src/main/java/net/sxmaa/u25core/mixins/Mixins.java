@@ -86,12 +86,10 @@ public enum Mixins implements IMixins {
 
     RTG_INCREASE_BASE_NOISE(
         new MixinBuilder()
-            .setApplyIf(() -> true)
+            .setApplyIf(() -> ModConfig.rtgMountainousTerrainRougher)
             .addRequiredMod(TargetedMod.RTG)
             .setPhase(Phase.LATE)
-            .addCommonMixins(
-                "rtg.TerrainBaseMixin",
-                "rtg.MountainWithPassesEffectMixin"))
+            .addCommonMixins("rtg.MountainWithPassesEffectMixin"))
 
     ;
     // spotless:on
