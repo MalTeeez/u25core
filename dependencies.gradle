@@ -70,8 +70,9 @@ dependencies {
     runtimeOnly("com.github.GTNewHorizons:CoreTweaks:0.3.3.6-GTNH:dev")
     runtimeOnly("com.github.GTNewHorizons:WDMla:2.7.4:dev")
 
-
-    runtimeOnly(files("libs/distanthorizons-alpha13-dev.jar"))
+    if (file("libs/Mekanism-Community-Edition-1.7.10-9.10.42.jar").exists()) {
+        runtimeOnly(files("libs/distanthorizons-alpha13-dev.jar"))
+    }
     runtimeOnly("com.github.GTNewHorizons:Climate-Control:0.10.0-GTNH:dev")
     devOnlyNonPublishable("com.github.GTNewHorizons:RTG:1.1.6-GTNH:dev")
     //runtimeOnly(rfg.deobf(files("libs/BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar")))
