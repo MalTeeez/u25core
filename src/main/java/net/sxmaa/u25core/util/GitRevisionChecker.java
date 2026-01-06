@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 public class GitRevisionChecker {
 
     public static class GitInfo {
+
         public final String revision;
         public final boolean isDirty;
         public final boolean isAvailable;
@@ -40,17 +41,20 @@ public class GitRevisionChecker {
     public static GitInfo getGitInfo() {
         try {
             // Get the directory where the JAR is running from
-            String urlPath = GitRevisionChecker.class.getProtectionDomain().getCodeSource().getLocation().toString();
+            String urlPath = GitRevisionChecker.class.getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .toString();
 
             // Remove everything after "!/" if present (class path inside JAR) & prefix
             int jarSeparator = urlPath.indexOf("!/");
             if (jarSeparator != -1) {
                 urlPath = urlPath.substring(0, jarSeparator);
             }
-            if (urlPath.startsWith("jar:"))
-                urlPath = urlPath.substring(4);
+            if (urlPath.startsWith("jar:")) urlPath = urlPath.substring(4);
 
-            File jarFile = Paths.get(new java.net.URI(urlPath)).toFile();
+            File jarFile = Paths.get(new java.net.URI(urlPath))
+                .toFile();
             File jarLocation = jarFile.isDirectory() ? jarFile : jarFile.getParentFile();
 
             if (jarLocation == null) {
@@ -74,7 +78,10 @@ public class GitRevisionChecker {
             return GitInfo.available(revision.trim(), isDirty);
 
         } catch (Exception e) {
-            return GitInfo.unavailable(e.getClass().getSimpleName() + ": " + e.getMessage());
+            return GitInfo.unavailable(
+                e.getClass()
+                    .getSimpleName() + ": "
+                    + e.getMessage());
         }
     }
 
@@ -92,7 +99,8 @@ public class GitRevisionChecker {
         try {
             // Check for uncommitted changes in the mods/ directory only
             String status = executeGitCommand(directory, "status", "--porcelain", "mods/");
-            return status != null && !status.trim().isEmpty();
+            return status != null && !status.trim()
+                .isEmpty();
         } catch (Exception e) {
             return false;
         }
@@ -103,7 +111,8 @@ public class GitRevisionChecker {
             ProcessBuilder pb = new ProcessBuilder();
             pb.command("git");
             for (String arg : args) {
-                pb.command().add(arg);
+                pb.command()
+                    .add(arg);
             }
             pb.directory(directory);
             pb.redirectErrorStream(true);
@@ -111,11 +120,11 @@ public class GitRevisionChecker {
             Process process = pb.start();
 
             StringBuilder output = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(process.getInputStream()))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    output.append(line).append("\n");
+                    output.append(line)
+                        .append("\n");
                 }
             }
 
