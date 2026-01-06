@@ -39,4 +39,16 @@ public class ModConfig {
     @Config.Comment("Modify RTG World Gen to be more noisy and raggy in mountainous terrain.")
     @Config.DefaultBoolean(true)
     public static boolean rtgMountainousTerrainRougher;
+
+    @Config.Comment("Increase the rarity of RTG Volcanoes, on top of the seemingly broken config rarity.")
+    @Config.DefaultBoolean(true)
+    public static boolean rtgIncreaseVolcanoRarity;
+
+    @Config.Comment("Set the Git Revision property on startup for showing with modernsplash.")
+    @Config.DefaultBoolean(true)
+    public static boolean setGitRev;
+
+    @Config.Comment("Optional prefix to use with the Git Revision property.")
+    @Config.DefaultString("")
+    public static String gitRevPrefix;
 }
