@@ -89,7 +89,14 @@ public enum Mixins implements IMixins {
             .setApplyIf(() -> ModConfig.rtgMountainousTerrainRougher)
             .addRequiredMod(TargetedMod.RTG)
             .setPhase(Phase.LATE)
-            .addCommonMixins("rtg.MountainWithPassesEffectMixin"))
+            .addCommonMixins("rtg.MountainWithPassesEffectMixin")),
+
+    FIX_AM2_ITEMFRAMES_LOADING_CHUNKS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.preventAM2ItemFrameChunkloading)
+            .addRequiredMod(TargetedMod.AM2)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("am2.ItemFrameWatcherMixin"))
 
     ;
     // spotless:on

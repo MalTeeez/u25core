@@ -37,7 +37,7 @@ dependencies {
     //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.8.100-GTNH:dev")
 
     // Library stuff
-    devOnlyNonPublishable("com.github.GTNewHorizons:GTNHLib:0.11.4:dev")
+    compileOnly("com.github.GTNewHorizons:GTNHLib:0.11.4:dev")
     devOnlyNonPublishable("com.github.GTNewHorizons:StructureLib:1.4.37:dev")
 
 
@@ -49,13 +49,21 @@ dependencies {
     devOnlyNonPublishable(rfg.deobf("curse.maven:chromaticraft-235590:4721192"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:rotarycraft-235596:4721191"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:reactorcraft-235593:4721203"))
+    runtimeOnlyNonPublishable("MalTeeez:ChromatiFixes:1.14.4:dev")
 
     devOnlyNonPublishable("com.github.GTNewHorizons:BlockRenderer6343:1.4.13:dev") { transitive = false }
 
     devOnlyNonPublishable("net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev") { transitive = false }
 
+    devOnlyNonPublishable("com.github.GTNewHorizons:RTG:1.2.0-GTNH:dev")
+
+    // Patch stuff
+    if (file("libs/AM2.5-LTS-1.8.3-RE-dev.jar").exists()) {
+        devOnlyNonPublishable(files("libs/AM2.5-LTS-1.8.3-RE-dev.jar"))
+        runtimeOnlyNonPublishable(rfg.deobf(files("libs/AnimationAPI-1.7.10-1.2.4.jar")))
+    }
+
     // Required at runtime by devOnlyNonPublishable
-    runtimeOnlyNonPublishable("MalTeeez:ChromatiFixes:1.14.4:dev")
     if (file("libs/DefenseTech-1.1-dev.jar").exists()) {
         runtimeOnly(files("libs/DefenseTech-1.1-dev.jar"))
     }
@@ -74,7 +82,6 @@ dependencies {
         runtimeOnly(files("libs/distanthorizons-alpha13-dev.jar"))
     }
     runtimeOnly("com.github.GTNewHorizons:Climate-Control:0.10.0-GTNH:dev")
-    devOnlyNonPublishable("com.github.GTNewHorizons:RTG:1.2.0-GTNH:dev")
     //runtimeOnly(rfg.deobf(files("libs/BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar")))
     //runtimeOnly(rfg.deobf(files("libs/journeymap-1.7.10-5.2.10-unlimited.jar")))
 }

@@ -17,7 +17,8 @@ public enum TargetedMod implements ITargetMod {
     DEFENSE_TECH("DefenseTech"),
     IC2("IC2"),
     CHROMATICRAFT("ChromatiCraft"),
-    RTG("RTG");
+    RTG("RTG"),
+    AM2("arsmagica2");
 
     private final TargetModBuilder builder;
     private final String id;
