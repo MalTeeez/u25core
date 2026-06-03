@@ -1,4 +1,2 @@
-- Try making Realistic World type (BOP + RTG) more hilly, probably in https://github.com/GTNewHorizons/Realistic-Terrain-Generation/blob/master/src/main/java/rtg/world/gen/terrain/TerrainBase.java#L24
 - multiblocks:
   - dragonic energy core
-  - reactorcraft hp turbines

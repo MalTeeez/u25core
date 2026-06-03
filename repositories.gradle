@@ -1,5 +1,21 @@
 // Add any additional repositories for your dependencies here.
 
 repositories {
-
+    exclusiveContent {
+        forRepository {
+            ivy {
+                name = 'ChromatiFixes releases'
+                url = 'https://github.com/MalTeeez/ChromatiFixes/releases/download/'
+                patternLayout {
+                    artifact '[revision]/[module]-[revision](-[classifier]).[ext]'
+                }
+                metadataSources {
+                    artifact()
+                }
+            }
+        }
+        filter {
+            includeGroup('MalTeeez')
+        }
+    }
 }
