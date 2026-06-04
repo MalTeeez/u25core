@@ -59,8 +59,8 @@ dependencies {
 
     // Patch stuff
     if (file("libs/AM2.5-LTS-1.8.3-RE-dev.jar").exists()) {
-        devOnlyNonPublishable(files("libs/AM2.5-LTS-1.8.3-RE-dev.jar"))
-        runtimeOnlyNonPublishable(rfg.deobf(files("libs/AnimationAPI-1.7.10-1.2.4.jar")))
+        compileOnly(files("libs/AM2.5-LTS-1.8.3-RE-dev.jar"))
+        compileOnly(rfg.deobf(files("libs/AnimationAPI-1.7.10-1.2.4.jar")))
     }
 
     // Required at runtime by devOnlyNonPublishable
