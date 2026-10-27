@@ -55,4 +55,12 @@ public class ModConfig {
     @Config.Comment("Prevent Item Frames from ticking in unloaded chunks when AM2 is installed.")
     @Config.DefaultBoolean(true)
     public static boolean preventAM2ItemFrameChunkloading;
+
+    @Config.Comment("Buff the Draconic Evolution dragons and Chaos Guardian, rebalance the armor shields and allow one more upgrade core tier on the armor and weapons.")
+    @Config.DefaultBoolean(true)
+    public static boolean draconicEvolutionBalance;
+
+    @Config.Comment("Draconic Armor only saves from death while it has emergency charges, which are gained with a near-full shield at a high energy cost.")
+    @Config.DefaultBoolean(true)
+    public static boolean draconicEvolutionEmergencyCharges;
 }

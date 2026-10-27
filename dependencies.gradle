@@ -44,6 +44,7 @@ dependencies {
     // Feature Stuff
     compileOnly("com.github.GTNewHorizons:EnderIO:2.10.29:dev") { transitive = false }
     compileOnly("com.github.GTNewHorizons:EnderCore:0.5.14:dev") { transitive = false }
+    compileOnly("com.github.GTNewHorizons:Draconic-Evolution:1.5.35-GTNH:dev") { transitive = false }
 
     devOnlyNonPublishable(rfg.deobf("curse.maven:dragonapi-235591:4722480"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:chromaticraft-235590:4721192"))

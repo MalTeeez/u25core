@@ -96,7 +96,29 @@ public enum Mixins implements IMixins {
             .setApplyIf(() -> ModConfig.preventAM2ItemFrameChunkloading)
             .addRequiredMod(TargetedMod.AM2)
             .setPhase(Phase.LATE)
-            .addCommonMixins("am2.ItemFrameWatcherMixin"))
+            .addCommonMixins("am2.ItemFrameWatcherMixin")),
+
+    DRACONIC_EVOLUTION_BALANCE(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.draconicEvolutionBalance)
+            .addRequiredMod(TargetedMod.DRACONIC_EVOLUTION)
+            .setPhase(Phase.LATE)
+            .addCommonMixins(
+                "draconicevolution.balance.EntityChaosGuardianMixin",
+                "draconicevolution.balance.EntityCustomDragonMixin",
+                "draconicevolution.balance.EntityDragonProjectileMixin",
+                "draconicevolution.balance.TileEnderResurrectionMixin",
+                "draconicevolution.balance.DraconicArmorMixin",
+                "draconicevolution.balance.WyvernArmorMixin",
+                "draconicevolution.balance.UpgradeTierMixin")),
+
+    DRACONIC_EVOLUTION_EMERGENCY_CHARGES(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.draconicEvolutionEmergencyCharges)
+            .addRequiredMod(TargetedMod.DRACONIC_EVOLUTION)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("draconicevolution.emergencycharges.CustomArmorHandlerMixin")
+            .addClientMixins("draconicevolution.emergencycharges.HudHandlerMixin"))
 
     ;
     // spotless:on

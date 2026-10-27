@@ -23,6 +23,8 @@ import cpw.mods.fml.relauncher.SideOnly;
         + "after:ChromatiCraft;"
         + "after:ReactorCraft;"
         + "after:EnderIO;"
+        // Load after DE so our resource pack overrides its textures
+        + "after:DraconicEvolution;"
         + "before:blockrenderer6343;"
         + "required-after:unimixins;"
         + "required-after:gtnhlib;",
