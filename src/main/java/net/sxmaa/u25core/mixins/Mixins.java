@@ -118,7 +118,47 @@ public enum Mixins implements IMixins {
             .addRequiredMod(TargetedMod.DRACONIC_EVOLUTION)
             .setPhase(Phase.LATE)
             .addCommonMixins("draconicevolution.emergencycharges.CustomArmorHandlerMixin")
-            .addClientMixins("draconicevolution.emergencycharges.HudHandlerMixin"))
+            .addClientMixins("draconicevolution.emergencycharges.HudHandlerMixin")),
+
+    NUCLEARCRAFT_TWEAKS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.nuclearCraftTweaks)
+            .addRequiredMod(TargetedMod.NUCLEARCRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins(
+                "nuclearcraft.TileSynchrotronMixin",
+                "nuclearcraft.TileSuperElectromagnetMixin",
+                "nuclearcraft.TileElectromagnetMixin",
+                "nuclearcraft.TileFusionReactorMixin")
+            .addClientMixins("nuclearcraft.GuiSynchrotronMixin")),
+
+    NUCLEARCRAFT_FIXES(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.nuclearCraftFixes)
+            .addRequiredMod(TargetedMod.NUCLEARCRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins(
+                "nuclearcraft.SidedSlotsMixin",
+                "nuclearcraft.SteamDecompressorMixin",
+                "nuclearcraft.PacketAssemblerStateMixin",
+                "nuclearcraft.AnvilRepairHandlerMixin",
+                "nuclearcraft.FluidMachineMixin",
+                "nuclearcraft.MachineCanCookMixin",
+                "nuclearcraft.TileElectricFurnaceMixin",
+                "nuclearcraft.NeighbourLookupMixin",
+                "nuclearcraft.TileFuelUserMixin",
+                "nuclearcraft.ComparatorCastMixin",
+                "nuclearcraft.FusionClientExplosionMixin",
+                "nuclearcraft.SynchrotronRingScanMixin")
+            .addClientMixins("nuclearcraft.PacketSideConfigMixin", "nuclearcraft.CrusherRecipeHandlerMixin")),
+
+    // Early, since it targets TileEntity itself. Only acts on NuclearCraft tiles, matched by class name.
+    // Depends on ComparatorCastMixin, since it reads every NC block's comparator output.
+    NUCLEARCRAFT_MARK_DIRTY(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.nuclearCraftFixes)
+            .setPhase(Phase.EARLY)
+            .addCommonMixins("nuclearcraft.TileEntityMarkDirtyMixin"))
 
     ;
     // spotless:on
