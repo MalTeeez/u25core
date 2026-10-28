@@ -1,5 +1,6 @@
 package net.sxmaa.u25core.radiation;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,14 +39,14 @@ public final class RadiationManager implements IRadiationManager {
 
     private final Map<Integer, WorldRadiation> worlds = new HashMap<>();
 
-    /** Per dimension chunk data and the round robin position of its update loop. */
+    /** Per dimension chunk data, its update queue and contamination waiting for unloaded chunks. */
     static final class WorldRadiation {
 
         final Map<Long, ChunkRadiation> chunks = new HashMap<>();
-        final List<Long> order = new ArrayList<>();
-        int cursor;
-        /** Hot sources found during the last updates, for Cherenkov effects: x, y, z, emission. */
-        final List<double[]> hotSources = new ArrayList<>();
+        /** Round robin queue of tracked chunks. Entries of chunks removed meanwhile are dropped when polled. */
+        final ArrayDeque<Long> queue = new ArrayDeque<>();
+        // ponytail: in memory only, a restart loses releases into chunks that never loaded since; persist if it matters
+        final Map<Long, Double> pendingContamination = new HashMap<>();
     }
 
     private RadiationManager() {}
@@ -60,6 +61,7 @@ public final class RadiationManager implements IRadiationManager {
 
     void unloadWorld(World world) {
         worlds.remove(world.provider.dimensionId);
+        Shielding.clear(world.provider.dimensionId);
     }
 
     ChunkRadiation getChunk(World world, int chunkX, int chunkZ) {
@@ -73,75 +75,93 @@ public final class RadiationManager implements IRadiationManager {
         if (chunk == null) {
             chunk = new ChunkRadiation();
             wr.chunks.put(key, chunk);
-            wr.order.add(key);
+            wr.queue.add(key);
         }
         return chunk;
     }
 
-    void putChunk(World world, int chunkX, int chunkZ, ChunkRadiation chunk) {
-        WorldRadiation wr = world(world);
-        if (wr.chunks.put(key(chunkX, chunkZ), chunk) == null) wr.order.add(key(chunkX, chunkZ));
+    /** A chunk loaded with its saved data (or null), merged with anything released into it while unloaded. */
+    void loadChunk(World world, int chunkX, int chunkZ, ChunkRadiation saved, boolean hasSources) {
+        Double pending = world(world).pendingContamination.remove(key(chunkX, chunkZ));
+        if (saved == null && pending == null && !hasSources) return;
+        ChunkRadiation chunk = trackChunk(world, chunkX, chunkZ);
+        if (saved != null) {
+            chunk.level = Math.max(chunk.level, saved.level);
+            chunk.contamination += saved.contamination;
+            chunk.lastUpdate = saved.lastUpdate;
+        }
+        if (pending != null) chunk.contamination += pending;
+        if (hasSources) chunk.hasSources = true;
     }
 
     void removeChunk(World world, int chunkX, int chunkZ) {
-        WorldRadiation wr = world(world);
-        if (wr.chunks.remove(key(chunkX, chunkZ)) != null) wr.order.remove(Long.valueOf(key(chunkX, chunkZ)));
+        world(world).chunks.remove(key(chunkX, chunkZ));
     }
 
     // region World update
 
-    /** Updates a budget of tracked chunks. Each one covers the ticks since its last update. */
+    /** Updates a budget of tracked chunks, each covering the ticks since its own last update. */
     void tickWorld(World world) {
         WorldRadiation wr = world(world);
-        int size = wr.order.size();
-        if (size == 0) return;
-        int budget = Math.min(RadiationConfig.chunksPerTick, size);
-        // Ticks between two updates of the same chunk
-        double ticks = Math.max(1, (double) size / RadiationConfig.chunksPerTick);
-        if (wr.cursor == 0) wr.hotSources.clear();
-        for (int i = 0; i < budget && !wr.order.isEmpty(); i++) {
-            if (wr.cursor >= wr.order.size()) wr.cursor = 0;
-            long key = wr.order.get(wr.cursor);
-            int chunkX = (int) key, chunkZ = (int) (key >> 32);
+        int budget = Math.min(RadiationConfig.chunksPerTick, wr.queue.size());
+        long now = world.getTotalWorldTime();
+        // Expected ticks between two visits of a chunk, limits how far rising and spreading catch up
+        double interval = Math.max(1, (double) wr.queue.size() / RadiationConfig.chunksPerTick);
+        for (int i = 0; i < budget; i++) {
+            long key = wr.queue.poll();
             ChunkRadiation chunk = wr.chunks.get(key);
-            if (chunk == null || !world.getChunkProvider()
+            if (chunk == null) continue;
+            int chunkX = (int) key, chunkZ = (int) (key >> 32);
+            if (!world.getChunkProvider()
                 .chunkExists(chunkX, chunkZ)) {
-                wr.cursor++;
+                // Not loaded, keep its contamination for when it is
+                wr.chunks.remove(key);
+                if (chunk.contamination > 0) wr.pendingContamination.merge(key, chunk.contamination, Double::sum);
                 continue;
             }
-            updateChunk(world, wr, world.getChunkFromChunkCoords(chunkX, chunkZ), chunk, ticks);
-            if (chunk.isIdle()) {
-                wr.chunks.remove(key);
-                wr.order.remove(wr.cursor);
-            } else {
-                wr.cursor++;
-            }
+            double elapsed = chunk.lastUpdate == 0 ? interval : Math.max(1, now - chunk.lastUpdate);
+            chunk.lastUpdate = now;
+            updateChunk(
+                world,
+                world.getChunkFromChunkCoords(chunkX, chunkZ),
+                chunk,
+                elapsed,
+                Math.min(elapsed, interval * 2));
+            if (chunk.isIdle()) wr.chunks.remove(key);
+            else wr.queue.add(key);
         }
     }
 
-    private void updateChunk(World world, WorldRadiation wr, Chunk c, ChunkRadiation chunk, double ticks) {
+    /**
+     * @param elapsed ticks since the last update, also covering time the chunk was unloaded (decay catches up)
+     * @param active  ticks the sources were actually running for, for rising, spreading and filters
+     */
+    private void updateChunk(World world, Chunk c, ChunkRadiation chunk, double elapsed, double active) {
         int baseX = c.xPosition << 4, baseZ = c.zPosition << 4;
         double sources = 0;
         double scrubbing = 1;
         boolean hasSources = false;
+        List<double[]> hot = null;
         for (Object o : c.chunkTileEntityMap.values()) {
             TileEntity te = (TileEntity) o;
             if (te instanceof IRadiationSource source) {
+                // Keep polling sources even while idle, so a reactor starting up is noticed
+                hasSources = true;
                 double emission = source.getRadiationEmission();
                 if (emission > 0) {
-                    hasSources = true;
                     sources += emission * Shielding.getPassFraction(world, te.xCoord, te.yCoord, te.zCoord);
                     if (RadiationConfig.cherenkovLevel > 0 && emission >= RadiationConfig.cherenkovLevel) {
-                        wr.hotSources.add(new double[] { te.xCoord, te.yCoord, te.zCoord, emission });
+                        if (hot == null) hot = new ArrayList<>();
+                        hot.add(new double[] { te.xCoord, te.yCoord, te.zCoord, emission });
                     }
                 }
             } else if (te instanceof TileScrubber scrubber && scrubber.isRunning()) {
                 hasSources = true;
                 scrubbing *= 1 - RadiationConfig.scrubberEfficiency;
-                scrubber.consume((int) ticks);
+                scrubber.consume((int) Math.round(active));
             }
         }
-        List<EntityLivingBase> living = new ArrayList<>();
+        chunk.hotSources = hot;
         for (List<?> list : c.entityLists) {
             for (Object o : list) {
                 if (o instanceof EntityItem item) {
@@ -150,35 +170,28 @@ public final class RadiationManager implements IRadiationManager {
                         hasSources = true;
                         sources += activity;
                     }
-                } else if (o instanceof EntityLivingBase entity && !(o instanceof EntityPlayer)) {
-                    living.add(entity);
                 }
             }
         }
         chunk.hasSources = hasSources;
 
-        double seconds = ticks / 20;
         double target = (sources + chunk.contamination) * scrubbing;
-        double rate = target > chunk.level ? RadiationConfig.riseRate : RadiationConfig.fallRate;
-        chunk.level += (target - chunk.level) * (1 - Math.pow(1 - rate, seconds));
-        if (chunk.level < 1.0E-12) chunk.level = 0;
+        boolean rising = target > chunk.level;
+        double rate = rising ? RadiationConfig.riseRate : RadiationConfig.fallRate;
+        chunk.level += (target - chunk.level) * (1 - Math.pow(1 - rate, (rising ? active : elapsed) / 20));
+        if (chunk.level < ChunkRadiation.IDLE_LEVEL) chunk.level = 0;
 
-        double decay = world.isRaining() && world.canBlockSeeTheSky(baseX + 8, 255, baseZ + 8)
+        int cx = baseX + 8, cz = baseZ + 8;
+        double decay = world.canLightningStrikeAt(cx, world.getPrecipitationHeight(cx, cz), cz)
             ? RadiationConfig.rainCleanupFactor
             : 1;
-        chunk.contamination *= Math.pow(0.5, ticks * decay / RadiationConfig.contaminationHalfLife);
-        if (chunk.contamination < 1.0E-12) chunk.contamination = 0;
+        chunk.contamination *= Math.pow(0.5, elapsed * decay / RadiationConfig.contaminationHalfLife);
+        if (chunk.contamination < ChunkRadiation.IDLE_LEVEL) chunk.contamination = 0;
 
-        spread(world, c.xPosition, c.zPosition, chunk, seconds);
+        spread(world, c.xPosition, c.zPosition, chunk, active / 20);
         // Chunks only get saved when flagged as modified
         if (!chunk.isIdle()) c.setChunkModified();
 
-        double level = chunk.level + RadiationRegistry.getBackground(world, baseX + 8, baseZ + 8);
-        for (EntityLivingBase entity : living) {
-            EntityRadiationData.expose(entity, level, ticks);
-            EntityRadiationData data = EntityRadiationData.get(entity);
-            if (data != null && data.dose > 0) data.update(entity, (int) ticks);
-        }
         if (RadiationConfig.terrainDamageLevel > 0 && chunk.level >= RadiationConfig.terrainDamageLevel) {
             damageTerrain(world, baseX + RAND.nextInt(16), baseZ + RAND.nextInt(16));
         }
@@ -197,7 +210,8 @@ public final class RadiationManager implements IRadiationManager {
             double nLevel = neighbour == null ? 0 : neighbour.level;
             if (chunk.level <= nLevel * 1.1) continue;
             double moved = (chunk.level - nLevel) * factor / 2;
-            if (moved < 1.0E-12) continue;
+            // Don't start tracking a chunk for amounts that would go idle right away
+            if (moved < ChunkRadiation.IDLE_LEVEL) continue;
             if (neighbour == null) neighbour = trackChunk(world, nx, nz);
             neighbour.level += moved;
             chunk.level -= moved;
@@ -227,6 +241,19 @@ public final class RadiationManager implements IRadiationManager {
         }
     }
 
+    /** Hot sources in tracked chunks around a position, for Cherenkov effects: x, y, z, emission. */
+    List<double[]> getHotSources(World world, double x, double z, int chunkRadius) {
+        List<double[]> result = new ArrayList<>();
+        int cx = (int) Math.floor(x) >> 4, cz = (int) Math.floor(z) >> 4;
+        for (int dx = -chunkRadius; dx <= chunkRadius; dx++) {
+            for (int dz = -chunkRadius; dz <= chunkRadius; dz++) {
+                ChunkRadiation chunk = getChunk(world, cx + dx, cz + dz);
+                if (chunk != null && chunk.hotSources != null) result.addAll(chunk.hotSources);
+            }
+        }
+        return result;
+    }
+
     // endregion
 
     // region API
@@ -239,8 +266,11 @@ public final class RadiationManager implements IRadiationManager {
     @Override
     public double getLevel(World world, double x, double y, double z) {
         int bx = (int) Math.floor(x), bz = (int) Math.floor(z);
+        double background = RadiationRegistry.getBackground(world, bx, bz);
+        // Chunk data lives on the server only, the client gets its own level synced
+        if (world.isRemote) return background;
         ChunkRadiation chunk = getChunk(world, bx >> 4, bz >> 4);
-        return RadiationRegistry.getBackground(world, bx, bz) + (chunk == null ? 0 : chunk.level);
+        return background + (chunk == null ? 0 : chunk.level);
     }
 
     @Override
@@ -252,7 +282,9 @@ public final class RadiationManager implements IRadiationManager {
     @Override
     public void addDose(EntityLivingBase entity, double sieverts) {
         EntityRadiationData data = EntityRadiationData.get(entity);
-        if (data != null && !EntityRadiationData.isImmune(entity)) data.dose = Math.max(0, data.dose + sieverts);
+        if (data != null && !entity.worldObj.isRemote && !EntityRadiationData.isProtectedFrom(entity, data)) {
+            data.dose = Math.max(0, data.dose + sieverts);
+        }
     }
 
     @Override
@@ -271,11 +303,14 @@ public final class RadiationManager implements IRadiationManager {
     public void contaminate(World world, double x, double y, double z, double svPerHour) {
         if (world.isRemote || svPerHour <= 0) return;
         int chunkX = (int) Math.floor(x) >> 4, chunkZ = (int) Math.floor(z) >> 4;
+        if (!world.getChunkProvider()
+            .chunkExists(chunkX, chunkZ)) {
+            world(world).pendingContamination.merge(key(chunkX, chunkZ), svPerHour, Double::sum);
+            return;
+        }
         trackChunk(world, chunkX, chunkZ).contamination += svPerHour;
-        if (world.getChunkProvider()
-            .chunkExists(chunkX, chunkZ))
-            world.getChunkFromChunkCoords(chunkX, chunkZ)
-                .setChunkModified();
+        world.getChunkFromChunkCoords(chunkX, chunkZ)
+            .setChunkModified();
     }
 
     @Override
@@ -361,11 +396,6 @@ public final class RadiationManager implements IRadiationManager {
     }
 
     // endregion
-
-    /** Hot sources of a world for Cherenkov effects, refreshed as chunks update. */
-    List<double[]> getHotSources(World world) {
-        return world(world).hotSources;
-    }
 
     /** Radioactivity of everything an entity carries, in Sv/h. */
     static double getCarried(Entity entity) {

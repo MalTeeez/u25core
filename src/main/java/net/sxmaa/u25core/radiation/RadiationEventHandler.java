@@ -15,10 +15,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.sxmaa.u25core.api.radiation.IRadiationSource;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -29,6 +29,7 @@ public final class RadiationEventHandler {
     private static final String CHUNK_KEY = "u25core:radiation";
     private static final int CHERENKOV_INTERVAL = 40;
     private static final double CHERENKOV_RANGE = 48;
+    private static final int MOB_INTERVAL = 40;
 
     private final Map<UUID, double[]> lastSent = new HashMap<>();
     private final java.util.Set<UUID> cherenkovPlayers = new java.util.HashSet<>();
@@ -40,20 +41,23 @@ public final class RadiationEventHandler {
         World world = event.world;
         if (world.isRemote) return;
         Chunk chunk = event.getChunk();
+        ChunkRadiation saved = null;
         if (event.getData()
             .hasKey(CHUNK_KEY)) {
-            ChunkRadiation data = new ChunkRadiation();
-            data.readFromNBT(
+            saved = new ChunkRadiation();
+            saved.readFromNBT(
                 event.getData()
                     .getCompoundTag(CHUNK_KEY));
-            RadiationManager.INSTANCE.putChunk(world, chunk.xPosition, chunk.zPosition, data);
         }
+        // Radiation sources track themselves when added to the chunk, scrubbers don't
+        boolean scrubbers = false;
         for (Object o : chunk.chunkTileEntityMap.values()) {
-            if (o instanceof IRadiationSource || o instanceof TileScrubber) {
-                RadiationManager.INSTANCE.trackChunk(world, chunk.xPosition, chunk.zPosition).hasSources = true;
+            if (o instanceof TileScrubber) {
+                scrubbers = true;
                 break;
             }
         }
+        RadiationManager.INSTANCE.loadChunk(world, chunk.xPosition, chunk.zPosition, saved, scrubbers);
     }
 
     @SubscribeEvent
@@ -103,7 +107,8 @@ public final class RadiationEventHandler {
         EntityRadiationData now = EntityRadiationData.get(event.entityPlayer);
         if (old == null || now == null) return;
         if (event.wasDeath) {
-            now.dose = old.dose * RadiationConfig.respawnDoseKept;
+            // Capped, so dying of radiation doesn't respawn you straight back into the worst effects
+            now.dose = Math.min(old.dose * RadiationConfig.respawnDoseKept, RadiationConfig.lethalDose * 0.5);
             now.immunityTicks = RadiationConfig.respawnImmunity;
         } else {
             NBTTagCompound tag = new NBTTagCompound();
@@ -124,11 +129,11 @@ public final class RadiationEventHandler {
     }
 
     private void sendCherenkov(World world) {
-        List<double[]> hot = RadiationManager.INSTANCE.getHotSources(world);
+        int chunkRadius = (int) Math.ceil(CHERENKOV_RANGE / 16);
         for (Object o : world.playerEntities) {
             EntityPlayerMP player = (EntityPlayerMP) o;
             List<double[]> near = new ArrayList<>();
-            for (double[] s : hot) {
+            for (double[] s : RadiationManager.INSTANCE.getHotSources(world, player.posX, player.posZ, chunkRadius)) {
                 if (player.getDistanceSq(s[0], s[1], s[2]) < CHERENKOV_RANGE * CHERENKOV_RANGE) near.add(s);
             }
             // Send an empty list once when the last hot source goes out of range, so the glow stops
@@ -153,12 +158,8 @@ public final class RadiationEventHandler {
         EntityRadiationData data = EntityRadiationData.get(player);
         if (data == null) return;
 
-        double level = RadiationManager.INSTANCE.getLevel(player.worldObj, player.posX, player.posY, player.posZ);
-        double exposure = level + RadiationManager.getCarried(player);
-        EntityRadiationData.expose(player, exposure, interval);
-        data.rate = EntityRadiationData.isImmune(player) || data.immunityTicks > 0 ? 0
-            : EntityRadiationData.absorbed(exposure, EntityRadiationData.getResistance(player));
         data.update(player, interval);
+        double level = RadiationManager.INSTANCE.getLevel(player.worldObj, player.posX, player.posY, player.posZ);
 
         double[] last = lastSent.computeIfAbsent(player.getUniqueID(), id -> new double[] { -1, -1, -1 });
         if (player instanceof EntityPlayerMP mp && RadiationNetwork.shouldSend(last, data.dose, data.rate, level)) {
@@ -167,6 +168,16 @@ public final class RadiationEventHandler {
             last[1] = data.rate;
             last[2] = level;
         }
+    }
+
+    /** Mobs update less often than players; their dose recovers and acts wherever they are. */
+    @SubscribeEvent
+    public void onLivingUpdate(LivingEvent.LivingUpdateEvent event) {
+        EntityLivingBase entity = event.entityLiving;
+        if (entity instanceof EntityPlayer || entity.worldObj.isRemote || !RadiationConfig.enabled) return;
+        if ((entity.worldObj.getTotalWorldTime() + entity.getEntityId()) % MOB_INTERVAL != 0) return;
+        EntityRadiationData data = EntityRadiationData.get(entity);
+        if (data != null) data.update(entity, MOB_INTERVAL);
     }
 
     @SubscribeEvent

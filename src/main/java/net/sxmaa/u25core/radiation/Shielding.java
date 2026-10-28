@@ -11,15 +11,18 @@ final class Shielding {
 
     private static final int DEPTH = 3;
     private static final int CACHE_TICKS = 1200;
+    /** Positions cached per dimension before the cache is dropped, bounds memory for sources that are long gone. */
+    private static final int MAX_ENTRIES = 20000;
 
-    private static final Map<String, double[]> cache = new HashMap<>();
+    private static final Map<Integer, Map<Long, double[]>> cache = new HashMap<>();
 
     private Shielding() {}
 
     /** Average over the 6 directions of the fraction passing up to {@value DEPTH} blocks of shielding, cached. */
     static double getPassFraction(World world, int x, int y, int z) {
-        String key = world.provider.dimensionId + ":" + x + ":" + y + ":" + z;
-        double[] entry = cache.get(key);
+        Map<Long, double[]> dim = cache.computeIfAbsent(world.provider.dimensionId, d -> new HashMap<>());
+        long key = ((long) x & 0x3FFFFFF) << 38 | ((long) z & 0x3FFFFFF) << 12 | (y & 0xFFF);
+        double[] entry = dim.get(key);
         long now = world.getTotalWorldTime();
         if (entry != null && now - (long) entry[1] < CACHE_TICKS) return entry[0];
 
@@ -35,11 +38,12 @@ final class Shielding {
             total += pass;
         }
         double fraction = total / 6;
-        cache.put(key, new double[] { fraction, now });
+        if (dim.size() >= MAX_ENTRIES) dim.clear();
+        dim.put(key, new double[] { fraction, now });
         return fraction;
     }
 
-    static void clear() {
-        cache.clear();
+    static void clear(int dimension) {
+        cache.remove(dimension);
     }
 }

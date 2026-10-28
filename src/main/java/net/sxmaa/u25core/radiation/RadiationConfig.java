@@ -35,8 +35,48 @@ public class RadiationConfig {
     @Config.DefaultStringList({ "IC2:itemArmorHazmatHelmet=0.25", "IC2:itemArmorHazmatChestplate=0.4",
         "IC2:itemArmorHazmatLeggings=0.2", "IC2:itemArmorRubBoots=0.15", "ReactorCraft:reactorcraft_item_hazhelmet=2.5",
         "ReactorCraft:reactorcraft_item_hazchest=4", "ReactorCraft:reactorcraft_item_hazlegs=2",
-        "ReactorCraft:reactorcraft_item_hazboots=1.5" })
+        "ReactorCraft:reactorcraft_item_hazboots=1.5", "IC2:itemArmorQuantumHelmet=25",
+        "IC2:itemArmorQuantumChestplate=25", "IC2:itemArmorQuantumLegs=25", "IC2:itemArmorQuantumBoots=25" })
     public static String[] armorResistance;
+
+    @Config.Comment("Resistance in Sv/h of each Modular Powersuits armor piece with the Hazmat module installed.")
+    @Config.DefaultDouble(2.5)
+    @Config.RangeDouble(min = 0)
+    public static double mpsHazmatResistance;
+
+    @Config.Comment("Potions other mods use as radiation, as potionName=Sv/h per potion level. Instead of the potion, entities get this rate as dose for its duration.")
+    @Config.DefaultStringList({ "ic2.potion.radiation=0.2" })
+    public static String[] radiationPotions;
+
+    @Config.Comment("Forestry radioactive bees expose nearby entities to this rate instead of damaging them, in Sv/h.")
+    @Config.DefaultDouble(2)
+    @Config.RangeDouble(min = 0)
+    public static double forestryBeeRadiation;
+
+    @Config.Comment("ExtraPlanets radioactive water exposes entities in it to this rate, in Sv/h.")
+    @Config.DefaultDouble(0.5)
+    @Config.RangeDouble(min = 0)
+    public static double radioactiveWaterRadiation;
+
+    @Config.Comment("Dose an IC2 Terra Wart removes, in Sv.")
+    @Config.DefaultDouble(1)
+    @Config.RangeDouble(min = 0)
+    public static double terraWartTreatment;
+
+    @Config.Comment("Emission of an active ReactorCraft fuel core, in Sv/h per fuel item in it.")
+    @Config.DefaultDouble(0.5)
+    @Config.RangeDouble(min = 0)
+    public static double reactorCraftCoreEmission;
+
+    @Config.Comment("Emission of stored ReactorCraft waste, in Sv/h per waste item.")
+    @Config.DefaultDouble(0.05)
+    @Config.RangeDouble(min = 0)
+    public static double reactorCraftWasteEmission;
+
+    @Config.Comment("Emission of a running IC2 nuclear reactor, in Sv/h per EU/t it outputs.")
+    @Config.DefaultDouble(0.01)
+    @Config.RangeDouble(min = 0)
+    public static double ic2ReactorEmission;
 
     @Config.Comment("Replace ReactorCraft's own radiation (potion exposure, radiation clouds) with this framework.")
     @Config.DefaultBoolean(true)

@@ -2,11 +2,13 @@ package net.sxmaa.u25core.radiation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.Potion;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fluids.FluidStack;
@@ -40,9 +42,12 @@ public final class RadiationRegistry {
     private static final Map<Integer, Double> dimensionBackground = new HashMap<>();
     private static final Map<String, Double> biomeBackground = new HashMap<>();
 
-    // Resolved per item/block id and meta, cleared whenever the tables change
-    private static final Map<Long, Double> stackCache = new HashMap<>();
-    private static final Map<Long, Shield> shieldCache = new HashMap<>();
+    private static final Map<Integer, Double> radiationPotions = new HashMap<>();
+
+    // Resolved per item/block id and meta, cleared whenever the tables change. Concurrent since the client thread
+    // reads them too in singleplayer
+    private static final Map<Long, Double> stackCache = new ConcurrentHashMap<>();
+    private static final Map<Long, Shield> shieldCache = new ConcurrentHashMap<>();
 
     private RadiationRegistry() {}
 
@@ -83,6 +88,14 @@ public final class RadiationRegistry {
         }
         biomeBackground.clear();
         parseDoubles(RadiationConfig.biomeBackground, biomeBackground);
+        radiationPotions.clear();
+        Map<String, Double> potions = new HashMap<>();
+        parseDoubles(RadiationConfig.radiationPotions, potions);
+        for (Map.Entry<String, Double> e : potions.entrySet()) {
+            Potion potion = findPotion(e.getKey());
+            if (potion != null) radiationPotions.put(potion.id, e.getValue());
+            else U25Core.LOG.info("Radiation potion {} not found, skipping", e.getKey());
+        }
         stackCache.clear();
         shieldCache.clear();
     }
@@ -166,6 +179,10 @@ public final class RadiationRegistry {
         if (stack.getItem() instanceof IRadiationProtection protection) {
             return protection.getRadiationResistance(stack, wearer);
         }
+        // Modular Powersuits keeps installed modules in this tag, keyed by module name
+        if (stack.hasTagCompound() && stack.getTagCompound()
+            .getCompoundTag("mmmpsmod")
+            .hasKey("Radiation Shielding")) return RadiationConfig.mpsHazmatResistance;
         GameRegistry.UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(stack.getItem());
         if (id == null) return 0;
         Double value = resistance.get(id + ":" + stack.getItemDamage());
@@ -209,5 +226,23 @@ public final class RadiationRegistry {
             if (value != null) level += value;
         }
         return level;
+    }
+
+    /** Sv/h per potion level for a potion other mods use as radiation, 0 if it isn't one. */
+    public static double getPotionRate(int potionId) {
+        Double rate = radiationPotions.get(potionId);
+        return rate == null ? 0 : rate;
+    }
+
+    /** A potion by its name, with or without the "potion." prefix. */
+    public static Potion findPotion(String name) {
+        for (Potion potion : Potion.potionTypes) {
+            if (potion != null && (potion.getName()
+                .equals("potion." + name)
+                || potion.getName()
+                    .equals(name)))
+                return potion;
+        }
+        return null;
     }
 }

@@ -18,7 +18,10 @@ import net.minecraftforge.common.IExtendedEntityProperties;
 import net.sxmaa.u25core.U25Core;
 import net.sxmaa.u25core.api.radiation.IRadiationImmune;
 
-/** Accumulated dose and medicine state of a living entity. */
+/**
+ * Accumulated dose and medicine state of a living entity. Exposure from all sources is collected between updates and
+ * protection is applied once per update, so splitting an exposure into many calls doesn't change the dose.
+ */
 public final class EntityRadiationData implements IExtendedEntityProperties {
 
     public static final String KEY = "u25core:radiation";
@@ -36,6 +39,12 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
     public int medicineTicks;
     public int immunityTicks;
 
+    /** Exposure collected since the last update, in Sv/h times ticks, before protection. */
+    private double pendingExposure;
+    /** A rate held until a world time, for radiation that works like a potion effect. */
+    private double heldRate;
+    private long heldUntil;
+
     private static TreeMap<Double, List<PotionEffect>> effectTiers;
 
     public static EntityRadiationData get(EntityLivingBase entity) {
@@ -50,6 +59,8 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
         tag.setDouble("medicineResistance", medicineResistance);
         tag.setInteger("medicineTicks", medicineTicks);
         tag.setInteger("immunityTicks", immunityTicks);
+        tag.setDouble("heldRate", heldRate);
+        tag.setLong("heldUntil", heldUntil);
         compound.setTag(KEY, tag);
     }
 
@@ -61,6 +72,8 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
         medicineResistance = tag.getDouble("medicineResistance");
         medicineTicks = tag.getInteger("medicineTicks");
         immunityTicks = tag.getInteger("immunityTicks");
+        heldRate = tag.getDouble("heldRate");
+        heldUntil = tag.getLong("heldUntil");
     }
 
     @Override
@@ -76,6 +89,11 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
             if (name.equals(immune) || name.endsWith("." + immune)) return true;
         }
         return false;
+    }
+
+    /** Immune, or still protected after respawning. */
+    static boolean isProtectedFrom(EntityLivingBase entity, EntityRadiationData data) {
+        return data.immunityTicks > 0 || isImmune(entity);
     }
 
     /** Resistance in Sv/h from worn armor and medicine. */
@@ -94,18 +112,44 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
         return rate <= 0 ? 0 : rate * rate / (rate + Math.max(0, resistance));
     }
 
-    /** Applies a rate in Sv/h over some ticks, reduced by the entity's protection. */
+    /** Adds exposure at a rate in Sv/h for some ticks. Protection is applied at the next update. */
     public static void expose(EntityLivingBase entity, double svPerHour, double ticks) {
         EntityRadiationData data = get(entity);
-        if (data == null || entity.worldObj.isRemote || isImmune(entity) || data.immunityTicks > 0) return;
-        double absorbed = absorbed(svPerHour, getResistance(entity));
-        data.dose += absorbed * ticks / RadiationManager.TICKS_PER_HOUR;
+        if (data == null || entity.worldObj.isRemote || svPerHour <= 0) return;
+        data.pendingExposure += svPerHour * ticks;
     }
 
-    /** Recovery, medicine and effects. Called every {@code ticks} ticks. */
+    /**
+     * Holds a rate for a duration like a potion effect: overlapping calls don't add up, the strongest rate and the
+     * latest
+     * end win. For mods that re-apply their radiation every tick.
+     */
+    public static void hold(EntityLivingBase entity, double svPerHour, int durationTicks) {
+        EntityRadiationData data = get(entity);
+        if (data == null || entity.worldObj.isRemote || svPerHour <= 0) return;
+        long now = entity.worldObj.getTotalWorldTime();
+        if (data.heldUntil <= now || svPerHour > data.heldRate) data.heldRate = svPerHour;
+        data.heldUntil = Math.max(data.heldUntil, now + durationTicks);
+    }
+
+    /** Applies the exposure of the last {@code ticks} ticks, then recovery, medicine and effects. */
     public void update(EntityLivingBase entity, int ticks) {
         if (immunityTicks > 0) immunityTicks = Math.max(0, immunityTicks - ticks);
         if (medicineTicks > 0) medicineTicks = Math.max(0, medicineTicks - ticks);
+
+        double exposure = pendingExposure;
+        pendingExposure = 0;
+        long now = entity.worldObj.getTotalWorldTime();
+        if (heldUntil > now - ticks) exposure += heldRate * Math.min(ticks, heldUntil - (now - ticks));
+        if (isProtectedFrom(entity, this)) {
+            rate = 0;
+        } else {
+            double ambient = RadiationManager.INSTANCE.getLevel(entity.worldObj, entity.posX, entity.posY, entity.posZ)
+                + RadiationManager.getCarried(entity);
+            rate = absorbed(ambient + exposure / ticks, getResistance(entity));
+            dose += rate * ticks / RadiationManager.TICKS_PER_HOUR;
+        }
+
         if (treatment > 0) {
             // Treatment clears its dose over about a minute
             double removed = Math.min(treatment, Math.max(treatment * ticks / 1200, 0.001 * ticks));
@@ -115,7 +159,7 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
         dose *= Math.pow(0.5, (double) ticks / RadiationConfig.doseHalfLife);
         if (dose < 1.0E-9) dose = 0;
 
-        if (isImmune(entity)) return;
+        if (isProtectedFrom(entity, this)) return;
         if (dose >= RadiationConfig.lethalDose) {
             entity.attackEntityFrom(DAMAGE, Float.MAX_VALUE);
             return;
@@ -139,7 +183,7 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
                 for (String part : kv[1].split(";")) {
                     String[] pa = part.trim()
                         .split("@");
-                    Potion potion = findPotion(pa[0].trim());
+                    Potion potion = RadiationRegistry.findPotion(pa[0].trim());
                     if (potion == null) {
                         U25Core.LOG.warn("Unknown potion in radiation effects: {}", pa[0]);
                         continue;
@@ -152,16 +196,5 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
             }
         }
         return effectTiers;
-    }
-
-    private static Potion findPotion(String name) {
-        for (Potion potion : Potion.potionTypes) {
-            if (potion != null && (potion.getName()
-                .equals("potion." + name)
-                || potion.getName()
-                    .equals(name)))
-                return potion;
-        }
-        return null;
     }
 }

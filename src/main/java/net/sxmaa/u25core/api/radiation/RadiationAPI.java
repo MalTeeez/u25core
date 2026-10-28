@@ -24,12 +24,18 @@ public final class RadiationAPI {
     public static final String MODID = "u25core";
 
     private static IRadiationManager manager;
+    /** Registrations made before U25Core's preInit, applied once the manager is set. */
+    private static final java.util.Map<String, Double> earlyRegistrations = new java.util.LinkedHashMap<>();
 
     private RadiationAPI() {}
 
     /** Set by U25Core during preInit. */
     public static void setManager(IRadiationManager instance) {
         manager = instance;
+        for (java.util.Map.Entry<String, Double> e : earlyRegistrations.entrySet()) {
+            instance.registerRadioactive(e.getKey(), e.getValue());
+        }
+        earlyRegistrations.clear();
     }
 
     /** Whether radiation is active. If false, don't consume materials you would otherwise release. */
@@ -99,6 +105,7 @@ public final class RadiationAPI {
     /** Registers or overrides a radioactive material, in Sv/h per unit. Config values take precedence. */
     public static void registerRadioactive(String key, double svPerHourPerUnit) {
         if (manager != null) manager.registerRadioactive(key, svPerHourPerUnit);
+        else earlyRegistrations.put(key, svPerHourPerUnit);
     }
 
     /**

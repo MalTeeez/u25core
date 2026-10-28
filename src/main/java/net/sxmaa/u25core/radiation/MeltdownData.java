@@ -1,7 +1,6 @@
 package net.sxmaa.u25core.radiation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -56,8 +55,8 @@ public final class MeltdownData extends WorldSavedData {
 
     void tick(World world) {
         if (meltdowns.isEmpty()) return;
-        for (Iterator<Meltdown> it = meltdowns.iterator(); it.hasNext();) {
-            Meltdown m = it.next();
+        // Over a copy, an explosion may schedule another meltdown
+        for (Meltdown m : new ArrayList<>(meltdowns)) {
             double x = m.minX + RAND.nextDouble() * (m.maxX - m.minX);
             double y = m.minY + RAND.nextDouble() * (m.maxY - m.minY);
             double z = m.minZ + RAND.nextDouble() * (m.maxZ - m.minZ);
@@ -70,7 +69,7 @@ public final class MeltdownData extends WorldSavedData {
                     (m.minY + m.maxY) / 2,
                     (m.minZ + m.maxZ) / 2,
                     m.contamination);
-                it.remove();
+                meltdowns.remove(m);
             }
             markDirty();
         }
