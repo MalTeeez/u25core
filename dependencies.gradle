@@ -50,7 +50,7 @@ dependencies {
     devOnlyNonPublishable(rfg.deobf("curse.maven:chromaticraft-235590:4721192"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:rotarycraft-235596:4721191"))
     devOnlyNonPublishable(rfg.deobf("curse.maven:reactorcraft-235593:4721203"))
-    runtimeOnlyNonPublishable("MalTeeez:ChromatiFixes:1.14.4:dev")
+    runtimeOnlyNonPublishable("MalTeeez:ChromatiFixes:1.15.2:dev")
 
     devOnlyNonPublishable("com.github.GTNewHorizons:BlockRenderer6343:1.4.13:dev") { transitive = false }
 
