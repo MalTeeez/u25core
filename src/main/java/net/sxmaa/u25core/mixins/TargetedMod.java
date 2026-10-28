@@ -19,7 +19,8 @@ public enum TargetedMod implements ITargetMod {
     CHROMATICRAFT("ChromatiCraft"),
     RTG("RTG"),
     AM2("arsmagica2"),
-    DRACONIC_EVOLUTION("DraconicEvolution");
+    DRACONIC_EVOLUTION("DraconicEvolution"),
+    MEKANISM("Mekanism");
 
     private final TargetModBuilder builder;
     private final String id;

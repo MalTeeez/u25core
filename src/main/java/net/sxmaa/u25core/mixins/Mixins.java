@@ -118,7 +118,22 @@ public enum Mixins implements IMixins {
             .addRequiredMod(TargetedMod.DRACONIC_EVOLUTION)
             .setPhase(Phase.LATE)
             .addCommonMixins("draconicevolution.emergencycharges.CustomArmorHandlerMixin")
-            .addClientMixins("draconicevolution.emergencycharges.HudHandlerMixin"))
+            .addClientMixins("draconicevolution.emergencycharges.HudHandlerMixin")),
+
+    MEKANISM_HEAVY_WATER_ON_MARS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.restrictHeavyWater)
+            .addRequiredMod(TargetedMod.MEKANISM)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("mekanism.ElectricPumpMixin", "mekanism.ElectrolyticSeparatorMixin")),
+
+    REACTORCRAFT_HEAVY_WATER_ON_PLANETS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.restrictHeavyWater)
+            .addRequiredMod(TargetedMod.DRAGONAPI)
+            .addRequiredMod(TargetedMod.REACTORCRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("reactorcraft.HeavyWaterExtractionMixin"))
 
     ;
     // spotless:on

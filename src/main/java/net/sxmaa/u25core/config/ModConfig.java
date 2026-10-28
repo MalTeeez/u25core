@@ -63,4 +63,21 @@ public class ModConfig {
     @Config.Comment("Draconic Armor only saves from death while it has emergency charges, which are gained with a near-full shield at a high energy cost.")
     @Config.DefaultBoolean(true)
     public static boolean draconicEvolutionEmergencyCharges;
+
+    @Config.Comment("Restrict heavy water: Mekanism only captures it on Mars, ReactorCraft only extracts it on Europa and (slowly) Mars, without needing an ocean biome.")
+    @Config.DefaultBoolean(true)
+    public static boolean restrictHeavyWater;
+
+    @Config.Comment("Dimension ID of Mars, for restrictHeavyWater.")
+    @Config.DefaultInt(-687)
+    public static int heavyWaterMarsDimension;
+
+    @Config.Comment("Dimension ID of Europa, for restrictHeavyWater.")
+    @Config.DefaultInt(-92788)
+    public static int heavyWaterEuropaDimension;
+
+    @Config.Comment("ReactorCraft heavy water extracted on Mars is divided by this.")
+    @Config.DefaultInt(10)
+    @Config.RangeInt(min = 1)
+    public static int reactorCraftMarsHeavyWaterDivisor;
 }
