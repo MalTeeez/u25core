@@ -20,7 +20,9 @@ public enum TargetedMod implements ITargetMod {
     RTG("RTG"),
     AM2("arsmagica2"),
     DRACONIC_EVOLUTION("DraconicEvolution"),
-    MEKANISM("Mekanism");
+    MEKANISM("Mekanism"),
+    FORESTRY("Forestry"),
+    EXTRAPLANETS("ExtraPlanets");
 
     private final TargetModBuilder builder;
     private final String id;

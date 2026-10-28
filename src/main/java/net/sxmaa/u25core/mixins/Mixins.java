@@ -142,14 +142,39 @@ public enum Mixins implements IMixins {
             .addRequiredMod(TargetedMod.DRAGONAPI)
             .addRequiredMod(TargetedMod.REACTORCRAFT)
             .setPhase(Phase.LATE)
-            .addCommonMixins("reactorcraft.RadiationEffectsMixin", "reactorcraft.EntityRadiationMixin")),
+            .addCommonMixins(
+                "reactorcraft.RadiationEffectsMixin",
+                "reactorcraft.EntityRadiationMixin",
+                "reactorcraft.NuclearCoreSourceMixin",
+                "reactorcraft.WasteUnitSourceMixin")),
 
-    IC2_NUKE_RADIATION(
+    IC2_RADIATION(
         new MixinBuilder()
             .setApplyIf(() -> RadiationConfig.enabled)
             .addRequiredMod(TargetedMod.IC2)
             .setPhase(Phase.LATE)
-            .addCommonMixins("ic2.ExplosionIC2RadiationMixin"))
+            .addCommonMixins("ic2.ExplosionIC2RadiationMixin", "ic2.NuclearReactorSourceMixin", "ic2.TerraWartMixin")),
+
+    FORESTRY_RADIATION(
+        new MixinBuilder()
+            .setApplyIf(() -> RadiationConfig.enabled)
+            .addRequiredMod(TargetedMod.FORESTRY)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("forestry.RadioactiveBeeMixin")),
+
+    EXTRAPLANETS_RADIATION(
+        new MixinBuilder()
+            .setApplyIf(() -> RadiationConfig.enabled)
+            .addRequiredMod(TargetedMod.EXTRAPLANETS)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("extraplanets.RadioactiveWaterMixin")),
+
+    // Early, the targets are vanilla classes
+    RADIATION_CORE(
+        new MixinBuilder()
+            .setApplyIf(() -> RadiationConfig.enabled)
+            .setPhase(Phase.EARLY)
+            .addCommonMixins("radiation.ChunkSourceTrackingMixin", "radiation.RadiationPotionMixin"))
 
     ;
     // spotless:on
