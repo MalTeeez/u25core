@@ -2,11 +2,9 @@ package net.sxmaa.u25core.mixins.late.blockrenderer6343;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -18,9 +16,6 @@ import blockrenderer6343.client.world.ObserverWorld;
 
 @Mixin(value = ObserverWorld.class, remap = false)
 public abstract class ObserverWorldMixin {
-
-    @Shadow
-    public abstract TileEntity getTileEntity(int x, int y, int z);
 
     /**
      * When br6343 scans all the structures for the items they require, it uses the damage value of the droppped item

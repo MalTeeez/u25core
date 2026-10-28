@@ -23,7 +23,10 @@ public class StructureCompatGuiHandlerMixin {
 
     @WrapOperation(
         method = "placeMultiblock",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;"))
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/item/ItemStack;getItem()Lnet/minecraft/item/Item;",
+            remap = true))
     public Item useFakeItemIfReikaPlacer(ItemStack instance, Operation<Item> original) {
         if (instance.getItem() instanceof ItemReactorPlacer) {
             return Item.getItemFromBlock(Blocks.dirt);
@@ -35,7 +38,8 @@ public class StructureCompatGuiHandlerMixin {
         method = "placeMultiblock",
         at = @At(
             value = "INVOKE",
-            target = "Lblockrenderer6343/client/world/TrackedDummyWorld;setBlock(IIILnet/minecraft/block/Block;II)Z"))
+            target = "Lblockrenderer6343/client/world/TrackedDummyWorld;setBlock(IIILnet/minecraft/block/Block;II)Z",
+            remap = true))
     public boolean useSpecialPlaceIfReikaPlacer(TrackedDummyWorld world, int x, int y, int z, Block block, int meta,
         int updateFlag, Operation<Boolean> original) {
         ItemStack item = ((GuiMultiblockHandlerAccessor) this).u25core$getStackForm();
