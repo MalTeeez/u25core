@@ -1,0 +1,14 @@
+item.u25core.geiger_counter.name=Geiger Counter
+item.u25core.dosimeter.name=Dosimeter
+item.u25core.anti_rad.name=Anti-Rad Treatment
+item.u25core.rad_protection.name=Radiation Protection Pill
+tile.u25core.scrubber.name=Radiation Scrubber
+tile.u25core.geigerBlock.name=Geiger Detector
+
+u25core.geiger.level=Radiation:
+u25core.geiger.carried=Carried items:
+u25core.geiger.dose=Your dose:
+u25core.scrubber.status=Scrubber: %s filters left, %ss on the current one
+
+death.attack.u25core.radiation=%1$s died of radiation sickness
+death.attack.u25core.radiation.player=%1$s died of radiation sickness

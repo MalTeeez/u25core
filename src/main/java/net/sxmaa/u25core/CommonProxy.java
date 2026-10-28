@@ -3,6 +3,7 @@ package net.sxmaa.u25core;
 import net.minecraft.item.Item;
 import net.sxmaa.u25core.common.multiblocks.DebugItem;
 import net.sxmaa.u25core.config.ModConfig;
+import net.sxmaa.u25core.radiation.Radiation;
 import net.sxmaa.u25core.registry.U25Multiblock;
 
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
@@ -34,14 +35,19 @@ public class CommonProxy {
         }
 
         GameRegistry.registerItem(debugItem = new DebugItem(), debugItem.getUnlocalizedName());
+        Radiation.preInit();
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
     public void init(FMLInitializationEvent event) {}
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
-    public void postInit(FMLPostInitializationEvent event) {}
+    public void postInit(FMLPostInitializationEvent event) {
+        Radiation.postInit();
+    }
 
     // register server commands in this event handler (Remove if not needed)
-    public void serverStarting(FMLServerStartingEvent event) {}
+    public void serverStarting(FMLServerStartingEvent event) {
+        Radiation.serverStarting(event);
+    }
 }
