@@ -15,7 +15,24 @@ repositories {
             }
         }
         filter {
-            includeGroup('MalTeeez')
+            includeModule('MalTeeez', 'ChromatiFixes')
+        }
+    }
+    exclusiveContent {
+        forRepository {
+            ivy {
+                name = 'Mekanism releases'
+                url = 'https://github.com/MalTeeez/Mekanism-Community-Edition/releases/download/'
+                patternLayout {
+                    artifact '[revision]/[module]-[revision](-[classifier]).[ext]'
+                }
+                metadataSources {
+                    artifact()
+                }
+            }
+        }
+        filter {
+            includeModule('MalTeeez', 'mekanism')
         }
     }
 }
