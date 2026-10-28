@@ -86,8 +86,14 @@ public class RadiationConfig {
     @Config.DefaultStringList({ "ore:blockLead=0.75,0.5", "ore:blockSteel=0.9,0.95", "ore:blockBoron=0.95,0.3",
         "block:minecraft:obsidian=0.5,0.8", "block:minecraft:water=0.3,0.1,true",
         "block:minecraft:flowing_water=0.3,0.1,true", "ore:blockGraphite=0.05,0.3,true",
-        "block:minecraft:iron_block=0.6,0.7", "block:minecraft:bedrock=0.975,1" })
+        "block:minecraft:iron_block=0.6,0.7", "block:minecraft:bedrock=0.975,1", "block:IC2:blockAlloy=0.6,0.7",
+        "block:IC2:blockAlloyGlass=0.4,0.5", "block:IC2:blockReinforcedFoam=0.6,0.7", "block:minecraft:stone=0.1,0.2",
+        "block:minecraft:cobblestone=0.1,0.2", "block:minecraft:dirt=0.05,0.1", "block:minecraft:sand=0.05,0.1" })
     public static String[] shielding;
+
+    @Config.Comment("Shielding blocks around an entity (up to 3 blocks in each direction) reduce the ambient radiation it gets, like a bunker. Sources are always shielded by the blocks around them.")
+    @Config.DefaultBoolean(true)
+    public static boolean entityShielding;
 
     @Config.Comment("Chunks updated per world per tick. Higher reacts faster, costs more.")
     @Config.DefaultInt(10)

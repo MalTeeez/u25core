@@ -144,8 +144,14 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
         if (isProtectedFrom(entity, this)) {
             rate = 0;
         } else {
-            double ambient = RadiationManager.INSTANCE.getLevel(entity.worldObj, entity.posX, entity.posY, entity.posZ)
-                + RadiationManager.getCarried(entity);
+            double ambient = RadiationManager.INSTANCE.getLevel(entity.worldObj, entity.posX, entity.posY, entity.posZ);
+            // Shielding blocks around the entity block the surroundings, not what it carries or direct exposure
+            if (RadiationConfig.entityShielding) ambient *= Shielding.getPassFraction(
+                entity.worldObj,
+                (int) Math.floor(entity.posX),
+                (int) Math.floor(entity.posY + entity.getEyeHeight()),
+                (int) Math.floor(entity.posZ));
+            ambient += RadiationManager.getCarried(entity);
             rate = absorbed(ambient + exposure / ticks, getResistance(entity));
             dose += rate * ticks / RadiationManager.TICKS_PER_HOUR;
         }
