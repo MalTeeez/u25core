@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -12,6 +13,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.oredict.OreDictionary;
 import net.sxmaa.u25core.U25Core;
 import net.sxmaa.u25core.api.radiation.IRadiationProtection;
@@ -210,6 +212,10 @@ public final class RadiationRegistry {
                     break;
                 }
             }
+        }
+        // Any other fluid shields a little, water has its own entry since it also slows neutrons down
+        if (shield == Shield.NONE && (block instanceof BlockLiquid || block instanceof IFluidBlock)) {
+            shield = new Shield(RadiationConfig.fluidNeutronAbsorb, RadiationConfig.fluidRadiationBlock, false);
         }
         shieldCache.put(id, shield);
         return shield;

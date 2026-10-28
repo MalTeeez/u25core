@@ -91,6 +91,16 @@ public class RadiationConfig {
         "block:minecraft:cobblestone=0.1,0.2", "block:minecraft:dirt=0.05,0.1", "block:minecraft:sand=0.05,0.1" })
     public static String[] shielding;
 
+    @Config.Comment("Fraction of neutrons absorbed by one block of a fluid that has no shielding entry.")
+    @Config.DefaultDouble(0.2)
+    @Config.RangeDouble(min = 0, max = 1)
+    public static double fluidNeutronAbsorb;
+
+    @Config.Comment("Fraction of radiation blocked by one block of a fluid that has no shielding entry.")
+    @Config.DefaultDouble(0.1)
+    @Config.RangeDouble(min = 0, max = 1)
+    public static double fluidRadiationBlock;
+
     @Config.Comment("Shielding blocks around an entity (up to 3 blocks in each direction) reduce the ambient radiation it gets, like a bunker. Sources are always shielded by the blocks around them.")
     @Config.DefaultBoolean(true)
     public static boolean entityShielding;
