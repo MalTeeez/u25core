@@ -3,6 +3,7 @@ package net.sxmaa.u25core.mixins;
 import javax.annotation.Nonnull;
 
 import net.sxmaa.u25core.config.ModConfig;
+import net.sxmaa.u25core.radiation.RadiationConfig;
 
 import com.gtnewhorizon.gtnhmixins.builders.IMixins;
 import com.gtnewhorizon.gtnhmixins.builders.MixinBuilder;
@@ -133,7 +134,22 @@ public enum Mixins implements IMixins {
             .addRequiredMod(TargetedMod.DRAGONAPI)
             .addRequiredMod(TargetedMod.REACTORCRAFT)
             .setPhase(Phase.LATE)
-            .addCommonMixins("reactorcraft.HeavyWaterExtractionMixin"))
+            .addCommonMixins("reactorcraft.HeavyWaterExtractionMixin")),
+
+    REACTORCRAFT_RADIATION(
+        new MixinBuilder()
+            .setApplyIf(() -> RadiationConfig.enabled && RadiationConfig.replaceReactorCraftRadiation)
+            .addRequiredMod(TargetedMod.DRAGONAPI)
+            .addRequiredMod(TargetedMod.REACTORCRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("reactorcraft.RadiationEffectsMixin", "reactorcraft.EntityRadiationMixin")),
+
+    IC2_NUKE_RADIATION(
+        new MixinBuilder()
+            .setApplyIf(() -> RadiationConfig.enabled)
+            .addRequiredMod(TargetedMod.IC2)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("ic2.ExplosionIC2RadiationMixin"))
 
     ;
     // spotless:on
