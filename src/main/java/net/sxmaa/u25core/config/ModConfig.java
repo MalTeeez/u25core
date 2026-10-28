@@ -63,12 +63,4 @@ public class ModConfig {
     @Config.Comment("Draconic Armor only saves from death while it has emergency charges, which are gained with a near-full shield at a high energy cost.")
     @Config.DefaultBoolean(true)
     public static boolean draconicEvolutionEmergencyCharges;
-
-    @Config.Comment("Rebalance the NuclearCraft Synchrotron, Electromagnets and Fusion Reactor meltdowns.")
-    @Config.DefaultBoolean(true)
-    public static boolean nuclearCraftTweaks;
-
-    @Config.Comment("Fix NuclearCraft crashes, dupes, fluid loss, an exploitable packet and per-tick chunk loading/neighbour updates.")
-    @Config.DefaultBoolean(true)
-    public static boolean nuclearCraftFixes;
 }
