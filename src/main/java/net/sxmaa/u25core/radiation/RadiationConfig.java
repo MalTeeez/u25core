@@ -101,7 +101,12 @@ public class RadiationConfig {
     @Config.RangeDouble(min = 0, max = 1)
     public static double fluidRadiationBlock;
 
-    @Config.Comment("Shielding blocks around an entity (up to 3 blocks in each direction) reduce the ambient radiation it gets, like a bunker. Sources are always shielded by the blocks around them.")
+    @Config.Comment("Fraction of radiation blocked per point of hardness by blocks without a shielding entry, capped at 0.5 (stone 7.5%, obsidian 50%). 0 disables.")
+    @Config.DefaultDouble(0.05)
+    @Config.RangeDouble(min = 0, max = 1)
+    public static double hardnessShielding;
+
+    @Config.Comment("Shielding blocks around an entity (up to 8 blocks in each direction) reduce the ambient radiation it gets, like a bunker. Sources are always shielded by the blocks around them.")
     @Config.DefaultBoolean(true)
     public static boolean entityShielding;
 
