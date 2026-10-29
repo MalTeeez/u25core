@@ -10,8 +10,9 @@
  * without U25Core. Strip the interface with
  * {@code @Optional.Interface(iface = "net.sxmaa.u25core.api.radiation.IRadiationSource", modid = "u25core")} and its
  * methods with {@code @Optional.Method(modid = "u25core")}.</li>
- * <li>Add {@code after:u25core} to your mod dependencies. Registrations made earlier are buffered and applied
- * anyway.</li>
+ * <li>Don't add {@code after:u25core} to your mod dependencies. U25Core loads after DragonAPI mods, which load after
+ * many others, so it easily causes a sorting cycle. It isn't needed: registrations made before U25Core loads are
+ * buffered and applied.</li>
  * </ul>
  * <b>Model:</b> every chunk has an ambient level in Sv/h that moves towards the sum of its sources (tiles implementing
  * {@link net.sxmaa.u25core.api.radiation.IRadiationSource}, radioactive dropped items) plus its contamination, and
