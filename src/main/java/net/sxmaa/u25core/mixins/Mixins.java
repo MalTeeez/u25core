@@ -121,6 +121,24 @@ public enum Mixins implements IMixins {
             .addCommonMixins("draconicevolution.emergencycharges.CustomArmorHandlerMixin")
             .addClientMixins("draconicevolution.emergencycharges.HudHandlerMixin")),
 
+    AE2_P2P_RF_CAP(
+        new MixinBuilder().setApplyIf(() -> ModConfig.p2pRFPerTick > 0)
+            .addRequiredMod(TargetedMod.AE2)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("ae2.RFP2PBudgetMixin")),
+
+    AE2_P2P_EU_CAP(
+        new MixinBuilder().setApplyIf(() -> ModConfig.p2pEUPerTick > 0)
+            .addRequiredMod(TargetedMod.AE2)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("ae2.EUP2PBudgetMixin")),
+
+    TESSERACT_RF_CAP(
+        new MixinBuilder().setApplyIf(() -> ModConfig.tesseractRFPerTick > 0)
+            .addRequiredMod(TargetedMod.THERMAL_EXPANSION)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("thermalexpansion.TesseractBudgetMixin")),
+
     MEKANISM_HEAVY_WATER_ON_MARS(
         new MixinBuilder()
             .setApplyIf(() -> ModConfig.restrictHeavyWater)

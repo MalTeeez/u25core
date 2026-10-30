@@ -80,4 +80,19 @@ public class ModConfig {
     @Config.DefaultInt(10)
     @Config.RangeInt(min = 1)
     public static int reactorCraftMarsHeavyWaterDivisor;
+
+    @Config.Comment("RF an AE2 RF P2P input tunnel passes on per tick, from all its sources together. 0 removes the cap.")
+    @Config.DefaultInt(16000)
+    @Config.RangeInt(min = 0)
+    public static int p2pRFPerTick;
+
+    @Config.Comment("EU an AE2 EU P2P input tunnel passes on per tick, from all its sources together. 0 removes the cap.")
+    @Config.DefaultInt(4000)
+    @Config.RangeInt(min = 0)
+    public static int p2pEUPerTick;
+
+    @Config.Comment("RF a Thermal Expansion Tesseract sends to its frequency per tick, from all its sources together. 0 removes the cap.")
+    @Config.DefaultInt(20000000)
+    @Config.RangeInt(min = 0)
+    public static int tesseractRFPerTick;
 }

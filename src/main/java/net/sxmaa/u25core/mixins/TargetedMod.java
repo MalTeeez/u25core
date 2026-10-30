@@ -22,7 +22,9 @@ public enum TargetedMod implements ITargetMod {
     DRACONIC_EVOLUTION("DraconicEvolution"),
     MEKANISM("Mekanism"),
     FORESTRY("Forestry"),
-    EXTRAPLANETS("ExtraPlanets");
+    EXTRAPLANETS("ExtraPlanets"),
+    AE2("appliedenergistics2"),
+    THERMAL_EXPANSION("ThermalExpansion");
 
     private final TargetModBuilder builder;
     private final String id;
