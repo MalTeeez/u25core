@@ -139,6 +139,12 @@ public enum Mixins implements IMixins {
             .setPhase(Phase.LATE)
             .addCommonMixins("thermalexpansion.TesseractBudgetMixin")),
 
+    ENTANGLOPORTER_CAP(
+        new MixinBuilder().setApplyIf(() -> ModConfig.entangloporterRFPerTick > 0)
+            .addRequiredMod(TargetedMod.MEKANISM)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("mekanism.EntangloporterMixin", "mekanism.ElectricBlockMixin", "mekanism.CableUtilsMixin")),
+
     MEKANISM_HEAVY_WATER_ON_MARS(
         new MixinBuilder()
             .setApplyIf(() -> ModConfig.restrictHeavyWater)

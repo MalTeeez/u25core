@@ -95,4 +95,9 @@ public class ModConfig {
     @Config.DefaultInt(20000000)
     @Config.RangeInt(min = 0)
     public static int tesseractRFPerTick;
+
+    @Config.Comment("RF a Mekanism Quantum Entangloporter moves per tick in each direction, into its frequency and out of the block, converted to J at Mekanism's own rate. 0 removes the cap.")
+    @Config.DefaultInt(320000)
+    @Config.RangeInt(min = 0)
+    public static int entangloporterRFPerTick;
 }
