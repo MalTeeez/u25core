@@ -40,10 +40,12 @@ public final class DataDump {
 
     /**
      * recipes: methods.json and recipes.jsonl. items: items.jsonl. nei: NEI's own dumpers. sources: sources.jsonl,
-     * where code makes or uses items. worldgen: worldgen.json, sampled terrain per dimension. icons: icons.png and
+     * where code makes or uses items. worldgen: worldgen.json, sampled terrain per dimension. dimensions:
+     * dimensions.json, how each dimension is reached. icons: icons.png and
      * icons.json for the items in recipes.jsonl, rendered on the client thread after the others.
      */
-    public static final List<String> PARTS = Arrays.asList("recipes", "items", "nei", "sources", "worldgen", "icons");
+    public static final List<String> PARTS = Arrays
+        .asList("recipes", "items", "nei", "sources", "worldgen", "dimensions", "icons");
 
     static final Gson GSON = new GsonBuilder().setPrettyPrinting()
         .disableHtmlEscaping()
@@ -125,7 +127,8 @@ public final class DataDump {
                 int count = "recipes".equals(part) ? RecipeDump.write(dir, info)
                     : "items".equals(part) ? items(dir)
                         : "sources".equals(part) ? SourcesDump.write(dir, info)
-                            : "worldgen".equals(part) ? WorldgenDump.write(dir, info) : neiDumps(dir, info);
+                            : "worldgen".equals(part) ? WorldgenDump.write(dir, info)
+                                : "dimensions".equals(part) ? DimensionsDump.write(dir, info) : neiDumps(dir, info);
                 info.addProperty("count", count);
                 summary.append(part)
                     .append(' ')

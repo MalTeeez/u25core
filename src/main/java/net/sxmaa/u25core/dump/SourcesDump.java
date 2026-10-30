@@ -69,18 +69,19 @@ final class SourcesDump {
         "(func_77973_b|func_77960_j|func_77946_l|getItem|getItemDamage|copy|<init>|valueOf|intValue|getStackOf.*|getCraftedProduct|getItemInstance|getBlockInstance)");
 
     private final Map<String, List<String>> fieldTargets = new HashMap<>();
-    private final Map<String, Number> configValues = new HashMap<>();
+    private static final Map<String, Number> configValues = new java.util.concurrent.ConcurrentHashMap<>();
     private final Set<String> rootClasses = new java.util.HashSet<>();
     private final Map<String, Root> roots = new LinkedHashMap<>();
 
     private SourcesDump() {}
 
     /** A class to scan and what it is: tile, entity, block, item, worldgen, dimension or event. */
-    private static final class Root {
+    static final class Root {
 
         final String kind;
         final String name;
         final Set<String> blocks = new TreeSet<>();
+        final Set<String> items = new TreeSet<>();
         final Set<Integer> dims = new TreeSet<>();
         /** Numbers the class reads off other mods' classes, mostly config: a multiblock's draw lives there. */
         final Map<String, Number> config = new java.util.TreeMap<>();
@@ -101,6 +102,13 @@ final class SourcesDump {
 
     static int write(File dir, JsonObject info) throws IOException {
         return new SourcesDump().run(dir, info);
+    }
+
+    /** The registered tiles, blocks, items, entities, world generators, dimensions and event handlers. */
+    static Collection<Root> registeredRoots() throws IOException {
+        SourcesDump dump = new SourcesDump();
+        dump.collectRoots();
+        return dump.roots.values();
     }
 
     private int run(File dir, JsonObject info) throws IOException {
@@ -131,6 +139,7 @@ final class SourcesDump {
                     line.addProperty("class", root.name);
                     if (root.via != null) line.addProperty("via", root.via);
                     if (!root.blocks.isEmpty()) line.add("blocks", strings(root.blocks));
+                    if (!root.items.isEmpty()) line.add("items", strings(root.items));
                     if (root.entity != null) line.addProperty("entity", root.entity);
                     if (!root.dims.isEmpty()) {
                         JsonArray dims = new JsonArray();
@@ -154,7 +163,7 @@ final class SourcesDump {
         return count;
     }
 
-    private static JsonArray strings(Collection<String> values) {
+    static JsonArray strings(Collection<String> values) {
         JsonArray array = new JsonArray();
         for (String value : values) array.add(DataDump.prim(value));
         return array;
@@ -166,10 +175,15 @@ final class SourcesDump {
         return roots.computeIfAbsent(kind + " " + name, k -> new Root(kind, name));
     }
 
-    private static boolean vanilla(String internalName) {
+    static boolean vanilla(String internalName) {
         return internalName.startsWith("net/minecraft/") || internalName.startsWith("java")
             || internalName.startsWith("cpw/")
-            || internalName.startsWith("sun/");
+            || internalName.startsWith("sun/")
+            || internalName.startsWith("kotlin/")
+            || internalName.startsWith("scala/")
+            || internalName.startsWith("com/google/")
+            || internalName.startsWith("org/apache/")
+            || internalName.startsWith("io/netty/");
     }
 
     @SuppressWarnings("unchecked")
@@ -204,7 +218,12 @@ final class SourcesDump {
                 } catch (Throwable ignored) {}
             }
         }
-        for (Object object : GameData.getItemRegistry()) root("item", object.getClass());
+        for (Object object : GameData.getItemRegistry()) {
+            Root itemRoot = root("item", object.getClass());
+            if (itemRoot != null) itemRoot.items.add(
+                GameData.getItemRegistry()
+                    .getNameForObject(object));
+        }
         for (Map.Entry<? extends Class<?>, String> entity : EntityList.classToStringMapping.entrySet()) {
             Root root = root("entity", entity.getKey());
             if (root != null) root.entity = entity.getValue();
@@ -279,7 +298,7 @@ final class SourcesDump {
         }
     }
 
-    private static ClassNode node(String className) throws IOException {
+    static ClassNode node(String className) throws IOException {
         byte[] bytes = Launch.classLoader.getClassBytes(className);
         if (bytes == null) return null;
         ClassNode node = new ClassNode();
@@ -392,7 +411,7 @@ final class SourcesDump {
         }
     }
 
-    private Number configValue(FieldInsnNode insn) {
+    static Number configValue(FieldInsnNode insn) {
         String key = insn.owner + "." + insn.name;
         if (configValues.containsKey(key)) return configValues.get(key);
         Number value = null;
@@ -406,7 +425,7 @@ final class SourcesDump {
                 } catch (NoSuchFieldException ignored) {}
             }
         } catch (Throwable ignored) {}
-        configValues.put(key, value);
+        if (value != null) configValues.put(key, value);
         return value;
     }
 
@@ -547,7 +566,7 @@ final class SourcesDump {
         return insn;
     }
 
-    private static Integer intConstant(AbstractInsnNode insn) {
+    static Integer intConstant(AbstractInsnNode insn) {
         int op = insn.getOpcode();
         if (op >= Opcodes.ICONST_M1 && op <= Opcodes.ICONST_5 && insn instanceof InsnNode) return op - Opcodes.ICONST_0;
         if ((op == Opcodes.BIPUSH || op == Opcodes.SIPUSH) && insn instanceof IntInsnNode)
