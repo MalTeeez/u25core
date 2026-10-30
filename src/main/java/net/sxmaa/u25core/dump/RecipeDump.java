@@ -17,8 +17,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.ShapedRecipes;
+import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 import net.sxmaa.u25core.U25Core;
 
 import com.google.gson.JsonArray;
@@ -93,11 +98,185 @@ final class RecipeDump {
                 methods.add(method);
                 total += count;
             }
+            total += galacticraft(out, seen, methods) + chromatiCraft(out, seen, methods);
         }
         DataDump.writeJson(new File(dir, "methods.json"), methods);
         partInfo.addProperty("handlers", handlers.size());
         partInfo.addProperty("handlerErrors", failed);
         return total;
+    }
+
+    /**
+     * Galacticraft's NASA workbench and compressor recipes, off its own registries: GTNH's Galacticraft never fills the
+     * maps its NEI workbench handlers read, nor registers its compressor handler, so NEI has none of them.
+     */
+    private static int galacticraft(Writer out, Set<String> seen, JsonArray methods) throws IOException {
+        Class<?> registry, compressor;
+        try {
+            registry = Class.forName("micdoodle8.mods.galacticraft.api.GalacticraftRegistry");
+            compressor = Class.forName("micdoodle8.mods.galacticraft.api.recipe.CompressorRecipes");
+        } catch (ClassNotFoundException e) {
+            return 0;
+        }
+        String bench = "GalacticraftCore:tile.rocketWorkbench:0";
+        String[][] sources = { { "getRocketT1Recipes", "galacticraft.rocketT1", bench },
+            { "getRocketT2Recipes", "galacticraft.rocketT2", bench },
+            { "getRocketT3Recipes", "galacticraft.rocketT3", bench },
+            { "getCargoRocketRecipes", "galacticraft.cargoRocket", bench },
+            { "getBuggyBenchRecipes", "galacticraft.buggy", bench },
+            { "getAstroMinerRecipes", "galacticraft.astroMiner", bench }, { "getRecipeList", "galacticraft.compressor",
+                "GalacticraftCore:tile.machine:12", "GalacticraftCore:tile.machine2:0" } };
+        int total = 0;
+        for (String[] source : sources) {
+            JsonObject method = new JsonObject();
+            method.addProperty("handler", source[1]);
+            method.addProperty("class", (source[1].endsWith("compressor") ? compressor : registry).getName());
+            method.addProperty("mod", "GalacticraftCore");
+            method.addProperty("source", "registry");
+            JsonArray catalysts = new JsonArray();
+            for (int i = 2; i < source.length; i++) catalysts.add(DataDump.prim(source[i]));
+            method.add("catalysts", catalysts);
+            int count = 0;
+            try {
+                List<?> recipes = (List<?>) (source[1].endsWith("compressor") ? compressor : registry)
+                    .getMethod(source[0])
+                    .invoke(null);
+                for (Object recipe : recipes) {
+                    try {
+                        Collection<?> inputs;
+                        ItemStack output;
+                        if (recipe instanceof IRecipe) {
+                            output = ((IRecipe) recipe).getRecipeOutput();
+                            inputs = inputs((IRecipe) recipe);
+                        } else {
+                            output = (ItemStack) recipe.getClass()
+                                .getMethod("getRecipeOutput")
+                                .invoke(recipe);
+                            inputs = ((Map<?, ?>) recipe.getClass()
+                                .getMethod("getRecipeInput")
+                                .invoke(recipe)).values();
+                        }
+                        JsonObject line = new JsonObject();
+                        line.addProperty("handler", source[1]);
+                        JsonArray in = new JsonArray();
+                        for (Object input : inputs) {
+                            if (input == null || input instanceof List && ((List<?>) input).isEmpty()) continue;
+                            in.add(stack(new PositionedStack(input, 0, 0), false));
+                        }
+                        line.add("inputs", in);
+                        JsonArray outputs = new JsonArray();
+                        outputs.add(stack(new PositionedStack(output, 0, 0), false));
+                        line.add("outputs", outputs);
+                        String text = line.toString();
+                        if (seen.add(text)) {
+                            out.write(text);
+                            out.write('\n');
+                            count++;
+                        }
+                    } catch (Throwable ignored) {}
+                }
+            } catch (Throwable t) {
+                method.addProperty("error", t.toString());
+            }
+            method.addProperty("recipes", count);
+            methods.add(method);
+            total += count;
+        }
+        return total;
+    }
+
+    /**
+     * ChromatiCraft's casting table recipes, with tier, research fragment, time and aura cost: its NEI handler only
+     * shows the ones the player has researched, which in a fresh dump world is none.
+     */
+    private static int chromatiCraft(Writer out, Set<String> seen, JsonArray methods) throws IOException {
+        Object table;
+        try {
+            table = Class.forName("Reika.ChromatiCraft.Auxiliary.RecipeManagers.RecipesCastingTable")
+                .getField("instance")
+                .get(null);
+        } catch (Throwable t) {
+            return 0;
+        }
+        JsonObject method = new JsonObject();
+        method.addProperty("handler", "chromaticraft.casting");
+        method.addProperty(
+            "class",
+            table.getClass()
+                .getName());
+        method.addProperty("mod", "ChromatiCraft");
+        method.addProperty("source", "registry");
+        int count = 0;
+        try {
+            Field ids = table.getClass()
+                .getDeclaredField("recipeIDs");
+            ids.setAccessible(true);
+            for (Object recipe : ((Map<?, ?>) ids.get(table)).values()) {
+                try {
+                    Object counts = call(recipe, "getItemCountsForDisplay");
+                    JsonArray in = new JsonArray();
+                    for (Object key : (Collection<?>) call(counts, "keySet")) {
+                        JsonObject stack = stack(new PositionedStack(key, 0, 0), false);
+                        Object n = counts.getClass()
+                            .getMethod("get", ItemStack.class)
+                            .invoke(counts, key);
+                        if (n instanceof Integer) stack.addProperty("count", (Integer) n);
+                        in.add(stack);
+                    }
+                    JsonObject line = new JsonObject();
+                    line.addProperty("handler", "chromaticraft.casting");
+                    line.add("inputs", in);
+                    JsonArray outputs = new JsonArray();
+                    outputs.add(stack(new PositionedStack(call(recipe, "getOutput"), 0, 0), false));
+                    line.add("outputs", outputs);
+                    line.addProperty("tier", (Integer) call(recipe, "getTier"));
+                    line.addProperty("ticks", (Integer) call(recipe, "getDuration"));
+                    Object fragment = call(recipe, "getFragment");
+                    if (fragment != null) line.addProperty("research", fragment.toString());
+                    Object aura = call(recipe, "getRequiredAura");
+                    if (aura != null) {
+                        JsonObject elements = new JsonObject();
+                        for (Object element : (Collection<?>) call(aura, "elementSet")) elements.addProperty(
+                            element.toString(),
+                            (Integer) aura.getClass()
+                                .getMethod("getValue", ((Enum<?>) element).getDeclaringClass())
+                                .invoke(aura, element));
+                        if (elements.entrySet()
+                            .size() > 0) line.add("aura", elements);
+                    }
+                    String text = line.toString();
+                    if (seen.add(text)) {
+                        out.write(text);
+                        out.write('\n');
+                        count++;
+                    }
+                } catch (Throwable ignored) {}
+            }
+        } catch (Throwable t) {
+            method.addProperty("error", t.toString());
+        }
+        method.addProperty("recipes", count);
+        methods.add(method);
+        return count;
+    }
+
+    private static Object call(Object target, String name) throws Exception {
+        try {
+            return target.getClass()
+                .getMethod(name)
+                .invoke(target);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    /** A crafting recipe's ingredients: stacks, and ore lists for the ore dictionary ones. */
+    private static Collection<?> inputs(IRecipe recipe) {
+        if (recipe instanceof ShapedRecipes) return java.util.Arrays.asList(((ShapedRecipes) recipe).recipeItems);
+        if (recipe instanceof ShapelessRecipes) return ((ShapelessRecipes) recipe).recipeItems;
+        if (recipe instanceof ShapedOreRecipe) return java.util.Arrays.asList(((ShapedOreRecipe) recipe).getInput());
+        if (recipe instanceof ShapelessOreRecipe) return ((ShapelessOreRecipe) recipe).getInput();
+        return java.util.Collections.emptyList();
     }
 
     private static JsonObject describe(ICraftingHandler handler) {
