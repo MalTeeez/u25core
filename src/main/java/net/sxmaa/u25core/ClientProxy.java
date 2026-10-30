@@ -32,9 +32,11 @@ public class ClientProxy extends CommonProxy {
 
         static void register() {
             ClientCommandHandler.instance.registerCommand(new CommandDump());
+            DataDump.Ticker ticker = new DataDump.Ticker();
             FMLCommonHandler.instance()
                 .bus()
-                .register(new DataDump.Ticker());
+                .register(ticker);
+            MinecraftForge.EVENT_BUS.register(ticker);
             HeadlessDump headless = HeadlessDump.fromLaunch();
             if (headless != null) FMLCommonHandler.instance()
                 .bus()

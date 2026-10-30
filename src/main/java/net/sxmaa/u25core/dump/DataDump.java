@@ -71,6 +71,7 @@ public final class DataDump {
     public static synchronized boolean runAsync(Collection<String> parts, Consumer<String> done) {
         if (running) return false;
         running = true;
+        clientThread = Thread.currentThread();
         List<String> threaded = new java.util.ArrayList<>(parts);
         boolean icons = threaded.remove("icons");
         Thread thread = new Thread(() -> {
@@ -99,8 +100,23 @@ public final class DataDump {
         return true;
     }
 
-    /** Hands finished dumps back to the client thread. */
+    private static volatile Thread clientThread;
+
+    /** Hands finished dumps back to the client thread. Registered on both the FML and the Forge bus. */
     public static final class Ticker {
+
+        /**
+         * Some recipe handlers open NEI's recipe screen when asked for recipes. Opened from the dump's threads it never
+         * gets
+         * set up and crashes the next frame, which drops the world mid-dump: those are cancelled, with the culprit
+         * logged.
+         */
+        @SubscribeEvent
+        public void onGuiOpen(net.minecraftforge.client.event.GuiOpenEvent event) {
+            if (!running || Thread.currentThread() == clientThread) return;
+            event.setCanceled(true);
+            U25Core.LOG.warn("Cancelled {} opened off the client thread during the dump", event.gui, new Throwable());
+        }
 
         @SubscribeEvent
         public void onTick(TickEvent.ClientTickEvent event) {
