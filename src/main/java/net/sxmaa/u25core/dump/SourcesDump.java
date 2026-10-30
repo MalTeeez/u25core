@@ -170,6 +170,8 @@ final class SourcesDump {
     }
 
     private Root root(String kind, Class<?> clazz) {
+        // TileEntity has other class-keyed static maps besides the registry, mixins' among them, null keys included
+        if (clazz == null) return null;
         String name = clazz.getName();
         if (vanilla(name.replace('.', '/'))) return null;
         return roots.computeIfAbsent(kind + " " + name, k -> new Root(kind, name));
@@ -195,9 +197,13 @@ final class SourcesDump {
             try {
                 field.setAccessible(true);
                 Map<?, ?> map = (Map<?, ?>) field.get(null);
-                if (!map.isEmpty() && map.keySet()
-                    .iterator()
-                    .next() instanceof Class) tiles = (Map<Class<?>, String>) map;
+                // classToNameMap: class keys, registry name values
+                Map.Entry<?, ?> first = map.isEmpty() ? null
+                    : map.entrySet()
+                        .iterator()
+                        .next();
+                if (first != null && first.getKey() instanceof Class && first.getValue() instanceof String)
+                    tiles = (Map<Class<?>, String>) map;
             } catch (Throwable ignored) {}
         }
         if (tiles != null) for (Class<?> tile : tiles.keySet()) root("tile", tile);
