@@ -1,7 +1,7 @@
 package net.sxmaa.u25core.dump;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.command.CommandBase;
@@ -48,10 +48,11 @@ public class CommandDump extends CommandBase {
         }
     }
 
-    /** Parts for all or one part name, null when unknown. */
+    /** Parts for all or comma-separated part names, null when one is unknown. */
     static List<String> parts(String arg) {
         if ("all".equals(arg)) return DataDump.PARTS;
-        return DataDump.PARTS.contains(arg) ? Collections.singletonList(arg) : null;
+        List<String> parts = Arrays.asList(arg.split(","));
+        return DataDump.PARTS.containsAll(parts) ? parts : null;
     }
 
     @Override
