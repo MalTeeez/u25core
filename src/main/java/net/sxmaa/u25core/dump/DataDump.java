@@ -38,8 +38,11 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 /** Data dumps for pack balancing, written to .minecraft/dumps/u25core. Client only, needs NEI. */
 public final class DataDump {
 
-    /** recipes: methods.json and recipes.jsonl. items: items.jsonl. nei: NEI's own dumpers. */
-    public static final List<String> PARTS = Arrays.asList("recipes", "items", "nei");
+    /**
+     * recipes: methods.json and recipes.jsonl. items: items.jsonl. nei: NEI's own dumpers. icons: icons.png and
+     * icons.json for the items in recipes.jsonl, rendered on the client thread after the others.
+     */
+    public static final List<String> PARTS = Arrays.asList("recipes", "items", "nei", "icons");
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
         .disableHtmlEscaping()
@@ -65,14 +68,27 @@ public final class DataDump {
     public static synchronized boolean runAsync(Collection<String> parts, Consumer<String> done) {
         if (running) return false;
         running = true;
+        List<String> threaded = new java.util.ArrayList<>(parts);
+        boolean icons = threaded.remove("icons");
         Thread thread = new Thread(() -> {
             String summary = "failed";
             try {
-                summary = run(parts);
+                summary = threaded.isEmpty() ? "" : run(threaded);
             } finally {
-                running = false;
                 String result = summary;
-                MAIN_THREAD.add(() -> done.accept(result));
+                MAIN_THREAD.add(() -> {
+                    if (icons) {
+                        Minecraft.getMinecraft()
+                            .displayGuiScreen(new IconDump(dir(), info -> {
+                                writeManifest(dir(), part("icons", info));
+                                running = false;
+                                done.accept(result + " icons " + info.get("count") + " in " + dir().getAbsolutePath());
+                            }));
+                    } else {
+                        running = false;
+                        done.accept(result);
+                    }
+                });
             }
         }, "u25core dump");
         thread.setDaemon(true);
@@ -93,20 +109,6 @@ public final class DataDump {
     public static String run(Collection<String> parts) {
         File dir = dir();
         dir.mkdirs();
-        JsonObject manifest = new JsonObject();
-        manifest.addProperty(
-            "timestamp",
-            Instant.now()
-                .toString());
-        JsonArray mods = new JsonArray();
-        for (ModContainer mod : Loader.instance()
-            .getActiveModList()) {
-            JsonObject entry = new JsonObject();
-            entry.addProperty("id", mod.getModId());
-            entry.addProperty("version", mod.getVersion());
-            mods.add(entry);
-        }
-        manifest.add("mods", mods);
         JsonObject results = new JsonObject();
         StringBuilder summary = new StringBuilder();
         for (String part : parts) {
@@ -129,7 +131,34 @@ public final class DataDump {
             info.addProperty("millis", System.currentTimeMillis() - start);
             results.add(part, info);
         }
-        // Parts that didn't run keep their files, so they keep their manifest entry too
+        writeManifest(dir, results);
+        return summary + "in " + dir.getAbsolutePath();
+    }
+
+    private static JsonObject part(String name, JsonObject info) {
+        JsonObject results = new JsonObject();
+        results.add(name, info);
+        return results;
+    }
+
+    /**
+     * Writes manifest.json with these parts' results; parts that didn't run keep their files, so their entries stay.
+     */
+    private static synchronized void writeManifest(File dir, JsonObject results) {
+        JsonObject manifest = new JsonObject();
+        manifest.addProperty(
+            "timestamp",
+            Instant.now()
+                .toString());
+        JsonArray mods = new JsonArray();
+        for (ModContainer mod : Loader.instance()
+            .getActiveModList()) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("id", mod.getModId());
+            entry.addProperty("version", mod.getVersion());
+            mods.add(entry);
+        }
+        manifest.add("mods", mods);
         try (java.io.Reader in = Files
             .newBufferedReader(new File(dir, "manifest.json").toPath(), StandardCharsets.UTF_8)) {
             JsonObject previous = new com.google.gson.JsonParser().parse(in)
@@ -144,7 +173,6 @@ public final class DataDump {
         } catch (IOException e) {
             U25Core.LOG.error("Writing the dump manifest failed", e);
         }
-        return summary + "in " + dir.getAbsolutePath();
     }
 
     /** Every item NEI lists, with NBT variants: id, display name, ore names. */
