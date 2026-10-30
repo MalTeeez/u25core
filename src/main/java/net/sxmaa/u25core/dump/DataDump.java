@@ -39,12 +39,13 @@ import cpw.mods.fml.common.gameevent.TickEvent;
 public final class DataDump {
 
     /**
-     * recipes: methods.json and recipes.jsonl. items: items.jsonl. nei: NEI's own dumpers. icons: icons.png and
+     * recipes: methods.json and recipes.jsonl. items: items.jsonl. nei: NEI's own dumpers. sources: sources.jsonl,
+     * where code makes or uses items. worldgen: worldgen.json, sampled terrain per dimension. icons: icons.png and
      * icons.json for the items in recipes.jsonl, rendered on the client thread after the others.
      */
-    public static final List<String> PARTS = Arrays.asList("recipes", "items", "nei", "icons");
+    public static final List<String> PARTS = Arrays.asList("recipes", "items", "nei", "sources", "worldgen", "icons");
 
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
+    static final Gson GSON = new GsonBuilder().setPrettyPrinting()
         .disableHtmlEscaping()
         .create();
 
@@ -103,6 +104,12 @@ public final class DataDump {
         public void onTick(TickEvent.ClientTickEvent event) {
             for (Runnable task; (task = MAIN_THREAD.poll()) != null;) task.run();
         }
+
+        @SubscribeEvent
+        public void onServerTick(TickEvent.ServerTickEvent event) {
+            Runnable task = event.phase == TickEvent.Phase.END ? WorldgenDump.SERVER_THREAD.poll() : null;
+            if (task != null) task.run();
+        }
     }
 
     /** Runs the parts, writes manifest.json and returns a summary line. */
@@ -116,7 +123,9 @@ public final class DataDump {
             long start = System.currentTimeMillis();
             try {
                 int count = "recipes".equals(part) ? RecipeDump.write(dir, info)
-                    : "items".equals(part) ? items(dir) : neiDumps(dir, info);
+                    : "items".equals(part) ? items(dir)
+                        : "sources".equals(part) ? SourcesDump.write(dir, info)
+                            : "worldgen".equals(part) ? WorldgenDump.write(dir, info) : neiDumps(dir, info);
                 info.addProperty("count", count);
                 summary.append(part)
                     .append(' ')

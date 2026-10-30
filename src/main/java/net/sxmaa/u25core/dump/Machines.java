@@ -28,9 +28,9 @@ import cpw.mods.fml.common.ModContainer;
  */
 final class Machines {
 
-    private static final Pattern RATE = Pattern.compile(
+    static final Pattern RATE = Pattern.compile(
         "(?i).*(energy|power|usage|consum|eu|rf|mj|tick|time|duration|operation|length|torque|omega|speed|mana|cost|fuel|heat|temp).*");
-    private static final Pattern NOISE = Pattern.compile(
+    static final Pattern NOISE = Pattern.compile(
         "(?i).*(stored|last|prev|client|render|anim|rotation|phi|sound|update|counter|tickcount|sincesync|sched|cache|slot|timeout|failed|sync).*");
 
     private static Map<String, String> modsBySource;
@@ -45,37 +45,7 @@ final class Machines {
             if (rotary != null) return rotary;
             TileEntity tile = tile(stack);
             if (tile == null) return null;
-            JsonObject fields = new JsonObject();
-            // ReactorCraft's shaft power receivers report their minimums through getters
-            for (String getter : new String[] { "getMinTorque", "getMinSpeed", "getMinPower" }) {
-                try {
-                    Object value = tile.getClass()
-                        .getMethod(getter)
-                        .invoke(tile);
-                    if (value instanceof Number && ((Number) value).longValue() > 1) fields.addProperty(
-                        getter.substring(3, 4)
-                            .toLowerCase() + getter.substring(4),
-                        (Number) value);
-                } catch (Throwable ignored) {}
-            }
-            for (Class<?> c = tile.getClass(); c != null && c != TileEntity.class; c = c.getSuperclass()) {
-                for (Field field : c.getDeclaredFields()) {
-                    String name = field.getName();
-                    if (field.isSynthetic() || fields.has(name)
-                        || !RATE.matcher(name)
-                            .matches()
-                        || NOISE.matcher(name)
-                            .matches())
-                        continue;
-                    Class<?> type = field.getType();
-                    if (!(type.isPrimitive() && type != boolean.class && type != char.class)) continue;
-                    try {
-                        field.setAccessible(true);
-                        Object value = field.get(Modifier.isStatic(field.getModifiers()) ? null : tile);
-                        if (((Number) value).doubleValue() != 0) fields.addProperty(name, (Number) value);
-                    } catch (Throwable ignored) {}
-                }
-            }
+            JsonObject fields = fields(tile);
             if (fields.entrySet()
                 .isEmpty()) return null;
             JsonObject machine = new JsonObject();
@@ -89,6 +59,42 @@ final class Machines {
         } catch (Throwable t) {
             return null;
         }
+    }
+
+    /** Rate-like numbers a tile entity holds, by field name. */
+    static JsonObject fields(TileEntity tile) {
+        JsonObject fields = new JsonObject();
+        // ReactorCraft's shaft power receivers report their minimums through getters
+        for (String getter : new String[] { "getMinTorque", "getMinSpeed", "getMinPower" }) {
+            try {
+                Object value = tile.getClass()
+                    .getMethod(getter)
+                    .invoke(tile);
+                if (value instanceof Number && ((Number) value).longValue() > 1) fields.addProperty(
+                    getter.substring(3, 4)
+                        .toLowerCase() + getter.substring(4),
+                    (Number) value);
+            } catch (Throwable ignored) {}
+        }
+        for (Class<?> c = tile.getClass(); c != null && c != TileEntity.class; c = c.getSuperclass()) {
+            for (Field field : c.getDeclaredFields()) {
+                String name = field.getName();
+                if (field.isSynthetic() || fields.has(name)
+                    || !RATE.matcher(name)
+                        .matches()
+                    || NOISE.matcher(name)
+                        .matches())
+                    continue;
+                Class<?> type = field.getType();
+                if (!(type.isPrimitive() && type != boolean.class && type != char.class)) continue;
+                try {
+                    field.setAccessible(true);
+                    Object value = field.get(Modifier.isStatic(field.getModifiers()) ? null : tile);
+                    if (((Number) value).doubleValue() != 0) fields.addProperty(name, (Number) value);
+                } catch (Throwable ignored) {}
+            }
+        }
+        return fields;
     }
 
     /** The tile entity a catalyst places, built without a world. */
