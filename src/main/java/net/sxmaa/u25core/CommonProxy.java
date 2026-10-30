@@ -1,6 +1,7 @@
 package net.sxmaa.u25core;
 
 import net.minecraft.item.Item;
+import net.sxmaa.u25core.common.GalacticraftBenchRecipes;
 import net.sxmaa.u25core.common.multiblocks.DebugItem;
 import net.sxmaa.u25core.config.ModConfig;
 import net.sxmaa.u25core.radiation.Radiation;
@@ -44,6 +45,7 @@ public class CommonProxy {
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {
         Radiation.postInit();
+        if (ModConfig.galacticraftBenchRecipes) GalacticraftBenchRecipes.register();
     }
 
     // register server commands in this event handler (Remove if not needed)

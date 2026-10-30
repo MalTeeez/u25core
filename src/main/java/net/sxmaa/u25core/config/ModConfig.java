@@ -12,6 +12,10 @@ public class ModConfig {
     @Config.DefaultBoolean(true)
     public static boolean enderIOTweaks;
 
+    @Config.Comment("Add Galacticraft's NASA workbench recipes (rockets, buggy, cargo rocket, astro miner) when nothing else has. GTNH's Galacticraft leaves them to the GTNH coremod.")
+    @Config.DefaultBoolean(true)
+    public static boolean galacticraftBenchRecipes;
+
     @Config.Comment("Add StructureLib support for other mods multiblocks so they show up in NEI & ingame with the projector.")
     @Config.DefaultBoolean(true)
     public static boolean externalStructureLibMultiblocks;
