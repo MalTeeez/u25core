@@ -129,6 +129,15 @@ public final class DataDump {
             info.addProperty("millis", System.currentTimeMillis() - start);
             results.add(part, info);
         }
+        // Parts that didn't run keep their files, so they keep their manifest entry too
+        try (java.io.Reader in = Files
+            .newBufferedReader(new File(dir, "manifest.json").toPath(), StandardCharsets.UTF_8)) {
+            JsonObject previous = new com.google.gson.JsonParser().parse(in)
+                .getAsJsonObject()
+                .getAsJsonObject("parts");
+            for (java.util.Map.Entry<String, JsonElement> entry : previous.entrySet())
+                if (!results.has(entry.getKey())) results.add(entry.getKey(), entry.getValue());
+        } catch (Exception ignored) {}
         manifest.add("parts", results);
         try {
             writeJson(new File(dir, "manifest.json"), manifest);

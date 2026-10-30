@@ -19,7 +19,26 @@ final class Units {
             case "EnderIO":
             case "NuclearCraft":
             case "DraconicEvolution":
+            case "draconicplus":
+            case "Techguns":
+            case "Forestry":
+            case "forestry":
+            case "MineFactoryReloaded":
+            case "ExtraUtilities":
+            case "BigReactors":
+            case "BuildCraft|Silicon":
+            case "BuildCraft|Factory":
+            case "mo":
                 return "RF";
+            case "GalacticraftCore":
+            case "GalacticraftMars":
+            case "ExtraPlanets":
+                return "gJ";
+            case "RotaryCraft":
+            case "ReactorCraft":
+                return "W";
+            case "appliedenergistics2":
+                return "AE";
             case "Botania":
                 return "mana";
             case "AWWayofTime":

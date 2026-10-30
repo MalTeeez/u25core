@@ -110,16 +110,22 @@ final class RecipeDump {
         method.addProperty("name", handler.getRecipeName());
         method.addProperty("overlay", handler.getOverlayIdentifier());
         HandlerInfo info = GuiRecipeTab.getHandlerInfo(handler);
-        if (info != null) {
-            method.addProperty("mod", info.getModId());
-            String unit = Units.of(info.getModId());
+        String mod = info != null ? info.getModId() : null;
+        if (mod == null || "Unknown".equals(mod)) mod = Machines.modOf(handler.getClass());
+        if (mod != null) {
+            method.addProperty("mod", mod);
+            String unit = Units.of(mod);
             if (unit != null) method.addProperty("unit", unit);
         }
         JsonArray catalysts = new JsonArray();
+        JsonArray machines = new JsonArray();
         for (PositionedStack catalyst : RecipeCatalysts.getRecipeCatalysts(handler)) {
             catalysts.add(DataDump.prim(id(catalyst.item)));
+            JsonObject machine = Machines.read(catalyst.item);
+            if (machine != null) machines.add(machine);
         }
         method.add("catalysts", catalysts);
+        if (machines.size() > 0) method.add("machines", machines);
         return method;
     }
 
