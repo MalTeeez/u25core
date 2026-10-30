@@ -202,6 +202,8 @@ final class DimensionsDump {
             }
         }
 
+        vanilla(entries);
+        placements(dir, entries);
         Map<Integer, JsonObject> bodies = bodies();
         JsonArray dims = new JsonArray();
         int tiered = 0, entered = 0, none = 0;
@@ -272,6 +274,89 @@ final class DimensionsDump {
             } catch (Throwable ignored) {}
         }
         return targets;
+    }
+
+    /** The vanilla portals, whose classes aren't scanned. */
+    private static void vanilla(Map<Integer, JsonArray> entries) {
+        String[][] portals = {
+            { "-1", "minecraft:portal", "minecraft:obsidian", "minecraft:flint_and_steel",
+                "vanilla obsidian frame + fire" },
+            { "1", "minecraft:end_portal", "minecraft:end_portal_frame", "minecraft:ender_eye",
+                "vanilla stronghold end portal frame + eyes of ender" } };
+        for (String[] portal : portals) {
+            JsonObject entry = new JsonObject();
+            entry.addProperty("kind", "block");
+            entry.add("blocks", SourcesDump.strings(Collections.singletonList(portal[1])));
+            entry.add("frame", SourcesDump.strings(Collections.singletonList(portal[2])));
+            entry.add("activator", SourcesDump.strings(Collections.singletonList(portal[3])));
+            entry.addProperty("evidence", portal[4]);
+            entry.addProperty("placedInWorld", true);
+            entries.computeIfAbsent(Integer.parseInt(portal[0]), d -> new JsonArray())
+                .add(entry);
+        }
+    }
+
+    /**
+     * What places each entry block in the world, from sources.jsonl when the sources part has run: the other classes
+     * that hand the block to setBlock and the like.
+     */
+    private static void placements(File dir, Map<Integer, JsonArray> entries) throws IOException {
+        File sources = new File(dir, "sources.jsonl");
+        if (!sources.isFile()) return;
+        Map<String, Set<String>> wanted = new HashMap<>();
+        for (JsonArray list : entries.values()) for (com.google.gson.JsonElement element : list) {
+            JsonObject entry = element.getAsJsonObject();
+            if (!entry.has("blocks") || entry.has("placedInWorld")) continue;
+            for (com.google.gson.JsonElement block : entry.getAsJsonArray("blocks"))
+                wanted.computeIfAbsent(base(block.getAsString()), b -> new HashSet<>());
+        }
+        Map<String, List<JsonObject>> placers = new HashMap<>();
+        com.google.gson.JsonParser parser = new com.google.gson.JsonParser();
+        try (java.io.BufferedReader in = java.nio.file.Files
+            .newBufferedReader(sources.toPath(), java.nio.charset.StandardCharsets.UTF_8)) {
+            for (String text; (text = in.readLine()) != null;) {
+                if (!text.contains("\"use\":\"output\"")) continue;
+                JsonObject line = parser.parse(text)
+                    .getAsJsonObject();
+                String block = base(
+                    line.get("item")
+                        .getAsString());
+                if (!wanted.containsKey(block)) continue;
+                JsonObject placer = new JsonObject();
+                for (String key : new String[] { "kind", "class", "method", "evidence" })
+                    if (line.has(key)) placer.add(key, line.get(key));
+                placers.computeIfAbsent(block, b -> new ArrayList<>())
+                    .add(placer);
+            }
+        }
+        for (JsonArray list : entries.values()) for (com.google.gson.JsonElement element : list) {
+            JsonObject entry = element.getAsJsonObject();
+            if (!entry.has("blocks") || entry.has("placedInWorld")) continue;
+            JsonArray placedBy = new JsonArray();
+            Set<String> seen = new HashSet<>();
+            for (com.google.gson.JsonElement block : entry.getAsJsonArray("blocks")) {
+                for (JsonObject placer : placers.getOrDefault(base(block.getAsString()), Collections.emptyList())) {
+                    String clazz = placer.get("class")
+                        .getAsString();
+                    // The portal's own code refers to itself all the time
+                    if (clazz.equals(
+                        entry.get("class")
+                            .getAsString())
+                        || !seen.add(clazz)) continue;
+                    if (placedBy.size() < 10) placedBy.add(placer);
+                }
+            }
+            if (placedBy.size() > 0) {
+                entry.add("placedBy", placedBy);
+                entry.addProperty("placedInWorld", true);
+            }
+        }
+    }
+
+    /** mod:name of a mod:name(:meta) id. */
+    private static String base(String id) {
+        String[] parts = id.split(":");
+        return parts.length >= 2 ? parts[0] + ":" + parts[1] : id;
     }
 
     private static JsonObject entry(SourcesDump.Root root, Effect effect, Set<String> instances) {
