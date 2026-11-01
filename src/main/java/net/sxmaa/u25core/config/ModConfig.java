@@ -105,6 +105,62 @@ public class ModConfig {
     @Config.RangeInt(min = 0)
     public static int entangloporterRFPerTick;
 
+    @Config.Comment("Fix an EnderIO dimensional transceiver power dupe: a sender offered its full budget to every receiver on a channel and was only charged for what it had left, so extra receivers got power for free.")
+    @Config.DefaultBoolean(true)
+    public static boolean fixTransceiverPowerDupe;
+
+    @Config.Comment("RotaryCraft Worktable recipes to remove, by output, as mod:name or mod:name:meta. Applied when loading completes.")
+    @Config.DefaultStringList({ "ElectriCraft:electricraft_item_rfbattery", "ElectriCraft:electricraft_item_placer:6",
+        "ElectriCraft:electricraft_item_placer:11", "ElectriCraft:electricraft_item_battery:4",
+        "ElectriCraft:electricraft_item_battery:5", "ReactorCraft:reactorcraft_item_placer:33",
+        "ReactorCraft:reactorcraft_item_placer:36", "RotaryCraft:rotarycraft_item_machine:71" })
+    public static String[] worktableRemove;
+
+    @Config.Comment("RF per tick all AE2 RF/EU P2P tunnels of one ME grid may send across Quantum Network Bridges, per live bridge link in that grid. EU counts as 4 RF. Stacks with the per-tunnel caps. 0 removes the cap.")
+    @Config.DefaultInt(40000)
+    @Config.RangeInt(min = 0)
+    public static int qnbRFPerTick;
+
+    @Config.Comment("Caps ChromatiCraft's energy adjacency upgrade boost per generator/reactor, summed over all upgrades around it, as a fraction (0.5 = at most +50% output; uncapped tier 8 is +3100%, +1500% on IC2 reactors). Below 0 disables the cap.")
+    @Config.DefaultDouble(0.5)
+    @Config.RangeDouble(min = -1, max = 100)
+    public static double chromaAdjacencyMaxBoost;
+
+    @Config.Comment("Multiplier on a normal ReactorCraft turbine's torque and power (so its generator's RF/EU and any RotaryCraft shaft output), whatever the steam source. Its steam comes as steam blocks, which don't record which reactor made them.")
+    @Config.DefaultDouble(1)
+    @Config.RangeDouble(min = 0)
+    public static double reactorTurbineMultiplier;
+
+    @Config.Comment("Multiplier on a ReactorCraft HiP turbine's output for the share of its steam from fission (water) reactors.")
+    @Config.DefaultDouble(1)
+    @Config.RangeDouble(min = 0)
+    public static double reactorFissionSteamMultiplier;
+
+    @Config.Comment("Multiplier on a ReactorCraft HiP turbine's output for the share of its steam from breeder (sodium), thorium and HTGR (pebble bed) reactors.")
+    @Config.DefaultDouble(1)
+    @Config.RangeDouble(min = 0)
+    public static double reactorSodiumSteamMultiplier;
+
+    @Config.Comment("Multiplier on a ReactorCraft HiP turbine's output for the share of its steam from the fusion reactor (tokamak).")
+    @Config.DefaultDouble(1)
+    @Config.RangeDouble(min = 0)
+    public static double reactorFusionSteamMultiplier;
+
+    @Config.Comment("RF per tick a NuclearCraft lithium-ion battery block takes in and puts out. 0 leaves NuclearCraft's (its whole capacity).")
+    @Config.DefaultInt(20000)
+    @Config.RangeInt(min = 0)
+    public static int ncLiIonBlockRFPerTick;
+
+    @Config.Comment("RF/t a Galacticraft aluminium wire network (any plain wire in it) hands each acceptor. 0 removes the cap.")
+    @Config.DefaultInt(2000)
+    @Config.RangeInt(min = 0)
+    public static int gcWireTier1RFPerTick;
+
+    @Config.Comment("RF/t a Galacticraft heavy aluminium wire network (all heavy wire) hands each acceptor. 0 removes the cap.")
+    @Config.DefaultInt(20000)
+    @Config.RangeInt(min = 0)
+    public static int gcWireTier2RFPerTick;
+
     @Config.Comment("With NotSoSimpleClouds: modded explosions push the clouds away, weather machines open them up, rockets, missiles, fast projectiles, flying players, jetpacks and lightning leave trails through them.")
     @Config.DefaultBoolean(true)
     public static boolean cloudCompat;

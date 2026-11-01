@@ -223,6 +223,51 @@ public enum Mixins implements IMixins {
             .setPhase(Phase.LATE)
             .addCommonMixins("enderio.WeatherRocketCloudMixin")),
 
+    ENDER_IO_TRANSCEIVER_POWER_DUPE(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.fixTransceiverPowerDupe)
+            .addRequiredMod(TargetedMod.ENDER_IO)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("enderio.TransceiverPowerDupeMixin")),
+
+    AE2_P2P_QNB_CAP(
+        new MixinBuilder().setApplyIf(() -> ModConfig.qnbRFPerTick > 0)
+            .addRequiredMod(TargetedMod.AE2)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("ae2.RFP2PQnbBudgetMixin", "ae2.EUP2PQnbBudgetMixin")),
+
+    CHROMATICRAFT_ADJACENCY_ENERGY_CAP(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.chromaAdjacencyMaxBoost >= 0)
+            .addRequiredMod(TargetedMod.DRAGONAPI)
+            .addRequiredMod(TargetedMod.CHROMATICRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("chromaticraft.adjacencycap.TileEntityEnergyIncreaseMixin")),
+
+    REACTORCRAFT_TURBINE_OUTPUT(
+        new MixinBuilder()
+            .setApplyIf(
+                () -> ModConfig.reactorTurbineMultiplier != 1 || ModConfig.reactorFissionSteamMultiplier != 1
+                    || ModConfig.reactorSodiumSteamMultiplier != 1
+                    || ModConfig.reactorFusionSteamMultiplier != 1)
+            .addRequiredMod(TargetedMod.DRAGONAPI)
+            .addRequiredMod(TargetedMod.REACTORCRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("reactorcraft.TurbineOutputMixin", "reactorcraft.HiPTurbineSourceMixin")),
+
+    NUCLEARCRAFT_LI_ION_TRANSFER(
+        new MixinBuilder().setApplyIf(() -> ModConfig.ncLiIonBlockRFPerTick > 0)
+            .addRequiredMod(TargetedMod.NUCLEARCRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("nuclearcraft.LiIonBatteryTransferMixin")),
+
+    GALACTICRAFT_WIRE_CAP(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.gcWireTier1RFPerTick > 0 || ModConfig.gcWireTier2RFPerTick > 0)
+            .addRequiredMod(TargetedMod.GALACTICRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("galacticraft.WireTierCapMixin")),
+
     // Targeted by name, each only applies if its mod is there
     OWN_EXPLOSION_CLOUDS(
         new MixinBuilder()

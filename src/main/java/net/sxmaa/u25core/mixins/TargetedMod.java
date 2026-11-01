@@ -24,7 +24,9 @@ public enum TargetedMod implements ITargetMod {
     FORESTRY("Forestry"),
     EXTRAPLANETS("ExtraPlanets"),
     AE2("appliedenergistics2"),
-    THERMAL_EXPANSION("ThermalExpansion");
+    THERMAL_EXPANSION("ThermalExpansion"),
+    GALACTICRAFT("GalacticraftCore"),
+    NUCLEARCRAFT("NuclearCraft");
 
     private final TargetModBuilder builder;
     private final String id;
