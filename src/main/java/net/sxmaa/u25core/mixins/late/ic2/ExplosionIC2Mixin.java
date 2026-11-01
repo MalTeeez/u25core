@@ -16,7 +16,10 @@ public abstract class ExplosionIC2Mixin {
 
     @ModifyArgs(
         method = "doExplosion",
-        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playSoundEffect(DDDLjava/lang/String;FF)V"))
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/World;playSoundEffect(DDDLjava/lang/String;FF)V",
+            remap = true))
     public void useDefenseTechSound(Args args) {
         if (this.isNuclear()) {
             args.set(3, "defense:explosion");

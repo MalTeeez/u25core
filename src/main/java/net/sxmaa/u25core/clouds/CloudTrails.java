@@ -52,18 +52,24 @@ public final class CloudTrails {
     private static final double MIN_Y = 100;
     /** Clouds are 8-block cubes, smaller trails barely show. */
     private static final float MIN_RADIUS = 8;
-    /** Extra ticks of lead on top of the expansion time, so a cushion of pushed cloud runs ahead of a player. */
-    private static final float LEAD_MARGIN_TICKS = 4;
+    /** Seconds a player's trail takes to open: a fast cushion of air shoving the clouds aside ahead of them. */
+    private static final float PLAYER_EXPAND_SECONDS = 0.2F;
     /**
      * Largest explosion core, in blocks. Its outer pressure wave reaches 1.5x as far, ~1500, the cloud render distance.
      */
     private static final float MAX_EXPLOSION_RADIUS = 1000;
+    /**
+     * The renderer pushes clouds out by this fraction of an effect's radius; that much is cleared, the rest is the wall
+     * of shoved cloud around it.
+     */
+    private static final float CLEARED_FRACTION = 0.4F;
     /** Lightning and weather machine columns reach this far up, through any cloud layer. */
     private static final double COLUMN_HEIGHT = 400;
 
     /** Squared step per tick an entity class needs to leave a trail, infinite for none. */
     private final Map<Class<?>, Double> minStepSq = new HashMap<>();
     private final Map<Class<?>, Boolean> isJetpack = new HashMap<>();
+    private final Map<Class<?>, Boolean> isGlider = new HashMap<>();
     private final Set<Object> seenBolts = Collections.newSetFromMap(new WeakHashMap<>());
 
     @SubscribeEvent
@@ -78,6 +84,8 @@ public final class CloudTrails {
                     e[2],
                     e[3],
                     Math.min(e[4], MAX_EXPLOSION_RADIUS / CloudEffects.explosionRadiusPerStrength));
+            } else if (e[0] == CloudCompat.NUKE) {
+                nuke(e[1], e[2], e[3], e[4]);
             } else {
                 // The sky stays open for a while after the weather changes
                 CloudEffects.trail(e[1], e[2], e[3], e[1], e[2] + COLUMN_HEIGHT, e[3], e[4], 2F, 30F);
@@ -112,12 +120,16 @@ public final class CloudTrails {
                 entity,
                 stepSq(entity) > stepSq,
                 Math.max(MIN_RADIUS, entity.width * ModConfig.cloudRocketTrailRadiusPerWidth),
+                0,
+                0,
                 0);
         }
     }
 
     private static double minStepSq(Class<?> c) {
         if (nameHas(c, "Rocket", "Missile", "Meteor")) return MIN_STEP_SQ;
+        // OpenBlocks' hang glider follows its player, whose own trail covers it
+        if (nameHas(c, "Glider")) return Double.POSITIVE_INFINITY;
         // Vanilla arrows, snowballs etc. are too common, mobs are not projectiles
         if (EntityLivingBase.class.isAssignableFrom(c) || c.getName()
             .startsWith("net.minecraft.")) return Double.POSITIVE_INFINITY;
@@ -127,9 +139,32 @@ public final class CloudTrails {
     private void player(EntityPlayer player) {
         boolean active = player.ridingEntity == null && clearBelow(player)
             && (stepSq(player) > FAST_PLAYER_SQ || jetpack(player) && player.posY - player.prevPosY > MIN_CLIMB);
-        float radius = ModConfig.cloudPlayerTrailRadius;
-        // Laid ahead of the player by the distance they cover while it opens, so they fly into open air, not a wall
-        trail(player, active, radius, CloudEffects.defaultExpandSeconds(radius) * 20 + LEAD_MARGIN_TICKS);
+        ItemStack held = player.getHeldItem();
+        boolean gliding = held != null && isGlider.computeIfAbsent(
+            held.getItem()
+                .getClass(),
+            c -> nameHas(c, "Glider"));
+        float radius = (gliding ? ModConfig.cloudGliderTrailRadius : ModConfig.cloudPlayerTrailRadius)
+            / CLEARED_FRACTION;
+        float expand = PLAYER_EXPAND_SECONDS;
+        // Laid ahead of the player, so they fly into open air rather than a wall: the clouds only pick up effect
+        // changes
+        // when a mesh rebuild starts, so the opening lags behind and a fast fall would outrun it
+        trail(
+            player,
+            active,
+            radius,
+            ModConfig.cloudPlayerTrailLeadSeconds * 20,
+            expand,
+            ModConfig.cloudPlayerTrailSeconds);
+    }
+
+    /** A core that stays open for minutes, and a wider pressure wave that shoves the clouds beyond it for a while. */
+    private static void nuke(double x, double y, double z, float scale) {
+        float core = ModConfig.cloudNukeRadius * scale / CLEARED_FRACTION, wave = core * 1.5F;
+        CloudEffects.shockwave(x, y, z, core, CloudEffects.defaultExpandSeconds(core), ModConfig.cloudNukeSeconds);
+        CloudEffects
+            .shockwave(x, y, z, wave, CloudEffects.defaultExpandSeconds(wave), CloudEffects.defaultHealSeconds(wave));
     }
 
     /**
@@ -163,15 +198,18 @@ public final class CloudTrails {
         return dx * dx + dy * dy + dz * dz;
     }
 
-    /** Extends the entity's trail to where it will be in {@code leadTicks} at its current speed. */
-    private static void trail(Entity entity, boolean active, float radius, float leadTicks) {
+    /**
+     * Extends the entity's trail to where it will be in {@code leadTicks} at its current speed. Heal seconds 0 uses the
+     * default timing for the radius.
+     */
+    private static void trail(Entity entity, boolean active, float radius, float leadTicks, float expandSeconds,
+        float healSeconds) {
         if (active && entity.posY > MIN_Y) {
-            CloudEffects.trailPoint(
-                entity,
-                entity.posX + (entity.posX - entity.prevPosX) * leadTicks,
-                entity.posY + (entity.posY - entity.prevPosY) * leadTicks,
-                entity.posZ + (entity.posZ - entity.prevPosZ) * leadTicks,
-                radius);
+            double x = entity.posX + (entity.posX - entity.prevPosX) * leadTicks,
+                y = entity.posY + (entity.posY - entity.prevPosY) * leadTicks,
+                z = entity.posZ + (entity.posZ - entity.prevPosZ) * leadTicks;
+            if (healSeconds > 0) CloudEffects.trailPoint(entity, x, y, z, radius, expandSeconds, healSeconds);
+            else CloudEffects.trailPoint(entity, x, y, z, radius);
         } else {
             // A later burn starts a new trail instead of bridging the gap
             CloudEffects.endTrail(entity);

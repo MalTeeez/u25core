@@ -200,6 +200,13 @@ public enum Mixins implements IMixins {
             .setPhase(Phase.LATE)
             .addCommonMixins("ic2.ExplosionIC2CloudMixin")),
 
+    NUCLEARCRAFT_CLOUDS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.cloudCompat)
+            .addRequiredMod(TargetedMod.NUCLEARCRAFT)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("nuclearcraft.BombCloudMixin")),
+
     DEFENSE_TECH_CLOUDS(
         new MixinBuilder()
             .setApplyIf(() -> ModConfig.cloudCompat)

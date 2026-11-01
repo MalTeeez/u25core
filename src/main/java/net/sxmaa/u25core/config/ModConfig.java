@@ -174,10 +174,35 @@ public class ModConfig {
     @Config.RangeFloat(min = 0)
     public static float cloudRocketTrailRadiusPerWidth;
 
-    @Config.Comment("Cloud trail radius of players flying, falling or using a jetpack, in blocks. Clouds are 8-block cubes.")
-    @Config.DefaultFloat(24)
+    @Config.Comment("Radius of the tunnel players flying, falling or using a jetpack clear through the clouds, in blocks. Clouds are 8-block cubes.")
+    @Config.DefaultFloat(18)
     @Config.RangeFloat(min = 0)
     public static float cloudPlayerTrailRadius;
+
+    @Config.Comment("Radius of the tunnel a player gliding with a hang glider clears through the clouds, in blocks.")
+    @Config.DefaultFloat(8)
+    @Config.RangeFloat(min = 0)
+    public static float cloudGliderTrailRadius;
+
+    @Config.Comment("Seconds of a player's current speed the tunnel is opened ahead of them. Raise it if fast flyers or fallers end up at the front edge of the opening rather than inside it.")
+    @Config.DefaultFloat(1)
+    @Config.RangeFloat(min = 0)
+    public static float cloudPlayerTrailLeadSeconds;
+
+    @Config.Comment("Seconds until the clouds have flowed back into a player's tunnel.")
+    @Config.DefaultFloat(180)
+    @Config.RangeFloat(min = 1)
+    public static float cloudPlayerTrailSeconds;
+
+    @Config.Comment("Radius of the sphere of sky a DefenseTech or NuclearCraft nuke clears, in blocks. A full IC2 nuke and DefenseTech's antimatter clear twice as far, NuclearCraft's antimatter bomb three times. The shockwave pushes the clouds further out for a while.")
+    @Config.DefaultFloat(325)
+    @Config.RangeFloat(min = 0)
+    public static float cloudNukeRadius;
+
+    @Config.Comment("Seconds until the clouds have flowed back over a nuclear blast.")
+    @Config.DefaultFloat(600)
+    @Config.RangeFloat(min = 1)
+    public static float cloudNukeSeconds;
 
     @Config.Comment("Radius of the opening in the clouds above a weather machine (Draconic, RotaryCraft, EnderIO's weather obelisk) when it changes the weather, in blocks.")
     @Config.DefaultFloat(48)

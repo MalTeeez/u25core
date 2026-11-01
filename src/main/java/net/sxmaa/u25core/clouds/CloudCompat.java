@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.sxmaa.u25core.U25Core;
 import net.sxmaa.u25core.config.ModConfig;
 
 import cpw.mods.fml.common.Loader;
@@ -23,7 +24,7 @@ import io.netty.buffer.ByteBuf;
 public final class CloudCompat {
 
     private static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel("u25core_clouds");
-    static final byte EXPLOSION = 0, SKY_COLUMN = 1;
+    static final byte EXPLOSION = 0, SKY_COLUMN = 1, NUKE = 2;
     /** Effects received off-thread as {kind, x, y, z, size}, applied on the next client tick. */
     static final Queue<float[]> PENDING = new ConcurrentLinkedQueue<>();
 
@@ -43,6 +44,22 @@ public final class CloudCompat {
     public static void explosion(World world, double x, double y, double z, float strength) {
         if (!ModConfig.cloudCompat || world == null || world.isRemote || !(strength > 0)) return;
         send(world, EXPLOSION, x, y, z, strength);
+    }
+
+    /**
+     * Server side: a nuclear blast, which clears the sky far and for long. Scale multiplies cloudNukeRadius (a
+     * DefenseTech nuclear explosive is 1).
+     */
+    public static void nuke(World world, double x, double y, double z, float scale) {
+        if (!ModConfig.cloudCompat || world == null || world.isRemote || !(scale > 0)) return;
+        U25Core.LOG.info(
+            "Nuclear blast at {} {} {} in dim {}, clearing the clouds at scale {}",
+            (int) x,
+            (int) y,
+            (int) z,
+            world.provider.dimensionId,
+            scale);
+        send(world, NUKE, x, y, z, scale);
     }
 
     /** Server side: a weather machine fired, the clouds above it open up. */
