@@ -161,6 +161,10 @@ public class ModConfig {
     @Config.RangeInt(min = 0)
     public static int gcWireTier2RFPerTick;
 
+    @Config.Comment("Fix DeeperCaves ores with a drop range of 0 (incendite) throwing when broken or shown in NEI.")
+    @Config.DefaultBoolean(true)
+    public static boolean deeperCavesOreDrops;
+
     @Config.Comment("Item that activates End portal frames instead of eyes of ender, as mod:name or mod:name:meta. Eyes still find strongholds and work in recipes. Empty keeps vanilla.")
     @Config.DefaultString("")
     public static String endPortalActivator;

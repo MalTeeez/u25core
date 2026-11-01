@@ -207,6 +207,13 @@ public enum Mixins implements IMixins {
             .setPhase(Phase.LATE)
             .addCommonMixins("nuclearcraft.BombCloudMixin")),
 
+    DEEPER_CAVES_ORE_DROPS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.deeperCavesOreDrops)
+            .addRequiredMod(TargetedMod.DEEPER_CAVES)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("deepercaves.BlockOreBaseDropMixin")),
+
     DEFENSE_TECH_CLOUDS(
         new MixinBuilder()
             .setApplyIf(() -> ModConfig.cloudCompat)

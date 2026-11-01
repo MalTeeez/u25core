@@ -26,7 +26,8 @@ public enum TargetedMod implements ITargetMod {
     AE2("appliedenergistics2"),
     THERMAL_EXPANSION("ThermalExpansion"),
     GALACTICRAFT("GalacticraftCore"),
-    NUCLEARCRAFT("NuclearCraft");
+    NUCLEARCRAFT("NuclearCraft"),
+    DEEPER_CAVES("DeeperCaves");
 
     private final TargetModBuilder builder;
     private final String id;
