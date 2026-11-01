@@ -99,6 +99,12 @@ public enum Mixins implements IMixins {
             .setPhase(Phase.LATE)
             .addCommonMixins("am2.ItemFrameWatcherMixin")),
 
+    DRACONIC_EVOLUTION_SPEED_LIMIT_FIX(
+        new MixinBuilder()
+            .addRequiredMod(TargetedMod.DRACONIC_EVOLUTION)
+            .setPhase(Phase.LATE)
+            .addClientMixins("draconicevolution.MinecraftForgeEventHandlerMixin")),
+
     DRACONIC_EVOLUTION_BALANCE(
         new MixinBuilder()
             .setApplyIf(() -> ModConfig.draconicEvolutionBalance)
