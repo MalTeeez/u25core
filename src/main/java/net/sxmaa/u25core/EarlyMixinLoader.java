@@ -8,6 +8,7 @@ import net.sxmaa.u25core.config.ModConfig;
 import net.sxmaa.u25core.mixins.Mixins;
 import net.sxmaa.u25core.radiation.RadiationConfig;
 import net.sxmaa.u25core.util.GitRevisionChecker;
+import net.sxmaa.u25core.util.LaunchProperties;
 
 import com.gtnewhorizon.gtnhlib.config.ConfigException;
 import com.gtnewhorizon.gtnhlib.config.ConfigurationManager;
@@ -21,6 +22,7 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 public class EarlyMixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     public EarlyMixinLoader() {
+        LaunchProperties.load("u25core.");
         try {
             ConfigurationManager.registerConfig(ModConfig.class);
             ConfigurationManager.registerConfig(RadiationConfig.class);
