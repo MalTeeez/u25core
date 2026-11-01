@@ -161,6 +161,10 @@ public class ModConfig {
     @Config.RangeInt(min = 0)
     public static int gcWireTier2RFPerTick;
 
+    @Config.Comment("Item that activates End portal frames instead of eyes of ender, as mod:name or mod:name:meta. Eyes still find strongholds and work in recipes. Empty keeps vanilla.")
+    @Config.DefaultString("")
+    public static String endPortalActivator;
+
     @Config.Comment("With NotSoSimpleClouds: modded explosions push the clouds away, weather machines open them up, rockets, missiles, fast projectiles, flying players, jetpacks and lightning leave trails through them.")
     @Config.DefaultBoolean(true)
     public static boolean cloudCompat;

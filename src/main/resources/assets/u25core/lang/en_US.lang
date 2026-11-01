@@ -12,3 +12,5 @@ u25core.scrubber.status=Scrubber: %s filters left, %ss on the current one
 
 death.attack.u25core.radiation=%1$s died of radiation sickness
 death.attack.u25core.radiation.player=%1$s died of radiation sickness
+
+u25core.endportal.activator=This eye won't seat in the frame. It takes %s.

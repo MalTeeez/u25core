@@ -1,7 +1,9 @@
 package net.sxmaa.u25core;
 
 import net.minecraft.item.Item;
+import net.minecraftforge.common.MinecraftForge;
 import net.sxmaa.u25core.clouds.CloudCompat;
+import net.sxmaa.u25core.common.EndPortalActivator;
 import net.sxmaa.u25core.common.GalacticraftBenchRecipes;
 import net.sxmaa.u25core.common.multiblocks.DebugItem;
 import net.sxmaa.u25core.config.ModConfig;
@@ -42,7 +44,9 @@ public class CommonProxy {
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)
-    public void init(FMLInitializationEvent event) {}
+    public void init(FMLInitializationEvent event) {
+        if (EndPortalActivator.enabled()) MinecraftForge.EVENT_BUS.register(new EndPortalActivator());
+    }
 
     // postInit "Handle interaction with other mods, complete your setup based on this." (Remove if not needed)
     public void postInit(FMLPostInitializationEvent event) {

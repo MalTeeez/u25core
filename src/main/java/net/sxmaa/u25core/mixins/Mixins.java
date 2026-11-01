@@ -281,6 +281,11 @@ public enum Mixins implements IMixins {
             .setPhase(Phase.EARLY)
             .addCommonMixins("clouds.ExplosionCloudMixin", "clouds.ExplosionAccessor")),
 
+    END_PORTAL_ACTIVATOR(
+        new MixinBuilder().setApplyIf(() -> !ModConfig.endPortalActivator.isEmpty())
+            .setPhase(Phase.EARLY)
+            .addCommonMixins("endportal.ItemEnderEyeMixin")),
+
     // Early, the targets are vanilla classes
     RADIATION_CORE(
         new MixinBuilder()
