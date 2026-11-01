@@ -1,6 +1,7 @@
 package net.sxmaa.u25core;
 
 import net.minecraft.item.Item;
+import net.sxmaa.u25core.clouds.CloudCompat;
 import net.sxmaa.u25core.common.GalacticraftBenchRecipes;
 import net.sxmaa.u25core.common.multiblocks.DebugItem;
 import net.sxmaa.u25core.config.ModConfig;
@@ -37,6 +38,7 @@ public class CommonProxy {
 
         GameRegistry.registerItem(debugItem = new DebugItem(), debugItem.getUnlocalizedName());
         Radiation.preInit();
+        CloudCompat.init();
     }
 
     // load "Do your mod setup. Build whatever data structures you care about. Register recipes." (Remove if not needed)

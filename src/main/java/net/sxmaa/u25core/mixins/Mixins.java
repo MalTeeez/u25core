@@ -193,6 +193,49 @@ public enum Mixins implements IMixins {
             .setPhase(Phase.LATE)
             .addCommonMixins("extraplanets.RadioactiveWaterMixin")),
 
+    IC2_CLOUDS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.cloudCompat)
+            .addRequiredMod(TargetedMod.IC2)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("ic2.ExplosionIC2CloudMixin")),
+
+    DEFENSE_TECH_CLOUDS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.cloudCompat)
+            .addRequiredMod(TargetedMod.DEFENSE_TECH)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("defensetech.BlastCloudMixin")),
+
+    DRACONIC_EVOLUTION_CLOUDS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.cloudCompat)
+            .addRequiredMod(TargetedMod.DRACONIC_EVOLUTION)
+            .setPhase(Phase.LATE)
+            .addCommonMixins(
+                "draconicevolution.ReactorExplosionCloudMixin",
+                "draconicevolution.WeatherControllerCloudMixin")),
+
+    ENDER_IO_CLOUDS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.cloudCompat)
+            .addRequiredMod(TargetedMod.ENDER_IO)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("enderio.WeatherRocketCloudMixin")),
+
+    // Targeted by name, each only applies if its mod is there
+    OWN_EXPLOSION_CLOUDS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.cloudCompat)
+            .setPhase(Phase.LATE)
+            .addCommonMixins("clouds.OwnExplosionCloudMixin", "clouds.TechgunsExplosionCloudMixin")),
+
+    EXPLOSION_CLOUDS(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.cloudCompat)
+            .setPhase(Phase.EARLY)
+            .addCommonMixins("clouds.ExplosionCloudMixin", "clouds.ExplosionAccessor")),
+
     // Early, the targets are vanilla classes
     RADIATION_CORE(
         new MixinBuilder()

@@ -104,4 +104,23 @@ public class ModConfig {
     @Config.DefaultInt(320000)
     @Config.RangeInt(min = 0)
     public static int entangloporterRFPerTick;
+
+    @Config.Comment("With NotSoSimpleClouds: modded explosions push the clouds away, weather machines open them up, rockets, missiles, fast projectiles, flying players, jetpacks and lightning leave trails through them.")
+    @Config.DefaultBoolean(true)
+    public static boolean cloudCompat;
+
+    @Config.Comment("Cloud trail radius of rockets and missiles, in blocks per block of entity width (at least 8).")
+    @Config.DefaultFloat(8)
+    @Config.RangeFloat(min = 0)
+    public static float cloudRocketTrailRadiusPerWidth;
+
+    @Config.Comment("Cloud trail radius of players flying, falling or using a jetpack, in blocks. Clouds are 8-block cubes.")
+    @Config.DefaultFloat(24)
+    @Config.RangeFloat(min = 0)
+    public static float cloudPlayerTrailRadius;
+
+    @Config.Comment("Radius of the opening in the clouds above a weather machine (Draconic, RotaryCraft, EnderIO's weather obelisk) when it changes the weather, in blocks.")
+    @Config.DefaultFloat(48)
+    @Config.RangeFloat(min = 0)
+    public static float cloudWeatherMachineRadius;
 }

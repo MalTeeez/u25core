@@ -1,0 +1,37 @@
+package net.sxmaa.u25core.mixins.late.ic2;
+
+import net.minecraft.entity.Entity;
+import net.minecraft.world.Explosion;
+import net.minecraft.world.World;
+import net.sxmaa.u25core.clouds.CloudCompat;
+
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import ic2.core.ExplosionIC2;
+
+/** IC2 explosions (nukes, ITNT, reactor meltdowns) skip vanilla's explosion packet, so they push the clouds here. */
+@Mixin(value = ExplosionIC2.class, remap = false)
+public abstract class ExplosionIC2CloudMixin extends Explosion {
+
+    @Shadow
+    @Final
+    private World worldObj;
+
+    @Shadow
+    @Final
+    private float power;
+
+    private ExplosionIC2CloudMixin(World world, Entity entity, double x, double y, double z, float size) {
+        super(world, entity, x, y, z, size);
+    }
+
+    @Inject(method = "doExplosion", at = @At("TAIL"))
+    private void u25core$pushClouds(CallbackInfo ci) {
+        CloudCompat.explosion(worldObj, explosionX, explosionY, explosionZ, power);
+    }
+}

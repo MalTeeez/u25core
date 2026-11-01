@@ -2,6 +2,8 @@ package net.sxmaa.u25core;
 
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.sxmaa.u25core.clouds.CloudTrails;
+import net.sxmaa.u25core.config.ModConfig;
 import net.sxmaa.u25core.dump.CommandDump;
 import net.sxmaa.u25core.dump.DataDump;
 import net.sxmaa.u25core.dump.HeadlessDump;
@@ -25,6 +27,9 @@ public class ClientProxy extends CommonProxy {
                 .register(handler);
         }
         if (Loader.isModLoaded("NotEnoughItems")) Dumps.register();
+        if (ModConfig.cloudCompat && Loader.isModLoaded("projectbabelfish")) FMLCommonHandler.instance()
+            .bus()
+            .register(new CloudTrails());
     }
 
     // Keeps NEI classes out of the proxy

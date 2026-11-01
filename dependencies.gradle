@@ -60,6 +60,9 @@ dependencies {
 
     devOnlyNonPublishable("com.github.GTNewHorizons:RTG:1.2.0-GTNH:dev")
 
+    // NotSoSimpleClouds' cloud effects API, for the cloud compat
+    compileOnly(files("libs/projectbabelfish-api.jar"))
+
     // Patch stuff
     if (file("libs/AM2.5-LTS-1.8.3-RE-dev.jar").exists()) {
         compileOnly(files("libs/AM2.5-LTS-1.8.3-RE-dev.jar"))
