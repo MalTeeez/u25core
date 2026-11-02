@@ -58,7 +58,7 @@ public final class RadiationRegistry {
         radioactive.putAll(apiRadioactive);
         parseDoubles(RadiationConfig.radioactiveMaterials, radioactive);
         resistance.clear();
-        parseDoubles(RadiationConfig.armorResistance, resistance);
+        parseDoubles(RadiationConfig.armorProtection, resistance);
         shieldKeys.clear();
         for (String entry : RadiationConfig.shielding) {
             String[] kv = entry.split("=", 2);
@@ -176,20 +176,21 @@ public final class RadiationRegistry {
                 * stack.amount;
     }
 
-    public static double getResistance(ItemStack stack, EntityLivingBase wearer) {
+    /** Fraction of radiation a worn piece blocks for its body part, 0 to 1. */
+    public static double getProtection(ItemStack stack, EntityLivingBase wearer) {
         if (stack == null || stack.getItem() == null) return 0;
         if (stack.getItem() instanceof IRadiationProtection protection) {
-            return protection.getRadiationResistance(stack, wearer);
+            return Math.max(0, Math.min(1, protection.getRadiationProtection(stack, wearer)));
         }
         // Modular Powersuits keeps installed modules in this tag, keyed by module name
         if (stack.hasTagCompound() && stack.getTagCompound()
             .getCompoundTag("mmmpsmod")
-            .hasKey("Radiation Shielding")) return RadiationConfig.mpsHazmatResistance;
+            .hasKey("Radiation Shielding")) return RadiationConfig.mpsHazmatProtection;
         GameRegistry.UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(stack.getItem());
         if (id == null) return 0;
         Double value = resistance.get(id + ":" + stack.getItemDamage());
         if (value == null) value = resistance.get(id.toString());
-        return value == null ? 0 : value;
+        return value == null ? 0 : Math.max(0, Math.min(1, value));
     }
 
     public static Shield getShield(Block block, int meta) {

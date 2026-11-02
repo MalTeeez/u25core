@@ -20,7 +20,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 /** Registers the radiation framework. */
 public final class Radiation {
 
-    public static Item geigerCounter, dosimeter, antiRad, radProtection;
+    public static Item geigerCounter, dosimeter, antiRad, radProtection, glasses;
     public static Block scrubber, geigerBlock;
 
     private Radiation() {}
@@ -43,6 +43,7 @@ public final class Radiation {
         GameRegistry.registerItem(
             radProtection = new ItemRadiation(ItemRadiation.Kind.RAD_PROTECTION, "rad_protection"),
             "rad_protection");
+        GameRegistry.registerItem(glasses = new ItemRadiationGlasses(), "radiation_glasses");
         GameRegistry.registerBlock(scrubber = new BlockScrubber(), "scrubber");
         GameRegistry.registerBlock(geigerBlock = new BlockGeiger(), "geiger_block");
         GameRegistry.registerTileEntity(TileScrubber.class, "u25core:scrubber");
@@ -76,6 +77,19 @@ public final class Radiation {
                 "gemQuartz"));
         GameRegistry.addRecipe(
             new ShapedOreRecipe(dosimeter, " S ", "PGP", " P ", 'S', Items.string, 'P', "paneGlass", 'G', "dyeGreen"));
+        GameRegistry.addRecipe(
+            new ShapedOreRecipe(
+                glasses,
+                "IGI",
+                "PDP",
+                'I',
+                "ingotGold",
+                'G',
+                "dustGlowstone",
+                'P',
+                "paneGlass",
+                'D',
+                dosimeter));
         GameRegistry.addRecipe(
             new ShapelessOreRecipe(
                 new ItemStack(antiRad, 2),

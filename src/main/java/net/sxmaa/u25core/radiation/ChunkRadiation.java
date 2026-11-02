@@ -16,6 +16,8 @@ public final class ChunkRadiation {
     public double contamination;
     /** Whether the last update found any emitting tile, item or scrubber in the chunk. */
     public boolean hasSources;
+    /** Source emission and scrubber factor found in the last update, for the clearing estimate. */
+    double sources, scrubbing = 1;
     /** World time of the last update, so a chunk that was unloaded catches up on decay. */
     long lastUpdate;
     /** Sources strong enough for Cherenkov glow found in the last update, or null: x, y, z, emission. */

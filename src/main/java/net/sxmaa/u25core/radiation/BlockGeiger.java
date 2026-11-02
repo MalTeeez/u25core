@@ -1,10 +1,16 @@
 package net.sxmaa.u25core.radiation;
 
+import java.util.Random;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-/** Comparator output on a log scale of the radiation level, 1 per decade from 1 uSv/h up to 15 at 100 MSv/h. */
+/**
+ * Emits redstone (and comparator output) by the radiation level, on the same log scale as the readout colours: 0 at
+ * background (10 uSv/h), 15 at 100 Sv/h. The current strength is kept in the metadata.
+ */
 public class BlockGeiger extends Block {
 
     public BlockGeiger() {
@@ -19,11 +25,23 @@ public class BlockGeiger extends Block {
         world.scheduleBlockUpdate(x, y, z, this, 20);
     }
 
-    // Comparators only re-read on neighbour updates, so poke them every second
     @Override
-    public void updateTick(World world, int x, int y, int z, java.util.Random random) {
-        world.func_147453_f(x, y, z, this);
+    public void updateTick(World world, int x, int y, int z, Random random) {
+        double level = RadiationManager.INSTANCE.getLevel(world, x + 0.5, y + 0.5, z + 0.5);
+        int signal = (int) Math.ceil(RadiationFormat.severity(level) * 15);
+        // Notifies redstone and comparators only when the strength changes
+        if (signal != world.getBlockMetadata(x, y, z)) world.setBlockMetadataWithNotify(x, y, z, signal, 3);
         world.scheduleBlockUpdate(x, y, z, this, 20);
+    }
+
+    @Override
+    public boolean canProvidePower() {
+        return true;
+    }
+
+    @Override
+    public int isProvidingWeakPower(IBlockAccess world, int x, int y, int z, int side) {
+        return world.getBlockMetadata(x, y, z);
     }
 
     @Override
@@ -33,7 +51,12 @@ public class BlockGeiger extends Block {
 
     @Override
     public int getComparatorInputOverride(World world, int x, int y, int z, int side) {
-        double level = RadiationManager.INSTANCE.getLevel(world, x + 0.5, y + 0.5, z + 0.5);
-        return (int) Math.max(0, Math.min(15, Math.floor(Math.log10(level) + 7)));
+        return world.getBlockMetadata(x, y, z);
+    }
+
+    /** Placed blocks drop as the plain detector, whatever their current strength. */
+    @Override
+    public int damageDropped(int meta) {
+        return 0;
     }
 }

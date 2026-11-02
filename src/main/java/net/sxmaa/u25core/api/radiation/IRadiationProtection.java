@@ -4,11 +4,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 
 /**
- * Implement on an armor item to protect its wearer. Resistances of all worn pieces add up, and the absorbed rate is
- * {@code r * r / (r + R)}: high resistance stops low rates almost entirely but leaks at high rates.
+ * Implement on an armor item to protect its wearer. Each piece only covers its part of the body (head 15%, chest 45%,
+ * legs 30%, feet 10%), so a missing piece lets its share through unprotected.
  */
 public interface IRadiationProtection {
 
-    /** Resistance R in Sv/h. */
-    double getRadiationResistance(ItemStack stack, EntityLivingBase wearer);
+    /** Fraction of radiation this piece blocks for the body part it covers, 0 to 1. */
+    double getRadiationProtection(ItemStack stack, EntityLivingBase wearer);
 }

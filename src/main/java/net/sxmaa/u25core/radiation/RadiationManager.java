@@ -32,9 +32,6 @@ import net.sxmaa.u25core.api.radiation.NeutronType;
 public final class RadiationManager implements IRadiationManager {
 
     public static final RadiationManager INSTANCE = new RadiationManager();
-    /** Ticks per hour, converts Sv/h into Sv per tick. */
-    public static final double TICKS_PER_HOUR = 72000;
-
     private static final Random RAND = new Random();
 
     private final Map<Integer, WorldRadiation> worlds = new HashMap<>();
@@ -174,6 +171,8 @@ public final class RadiationManager implements IRadiationManager {
             }
         }
         chunk.hasSources = hasSources;
+        chunk.sources = sources;
+        chunk.scrubbing = scrubbing;
 
         double target = (sources + chunk.contamination) * scrubbing;
         boolean rising = target > chunk.level;
@@ -252,6 +251,30 @@ public final class RadiationManager implements IRadiationManager {
             }
         }
         return result;
+    }
+
+    /**
+     * Seconds until the chunk at a position is back to background, or -1 while its sources keep it up. Steps the
+     * chunk's own fall and contamination decay a minute at a time.
+     */
+    // ponytail: ignores rain, spreading to/from neighbours and scrubbers running dry, so it's an estimate
+    long secondsUntilClear(World world, double x, double z) {
+        ChunkRadiation chunk = getChunk(world, (int) Math.floor(x) >> 4, (int) Math.floor(z) >> 4);
+        if (chunk == null) return 0;
+        if (chunk.sources * chunk.scrubbing > RadiationFormat.SAFE) return -1;
+        final int step = 60;
+        double fall = 1 - Math.pow(1 - RadiationConfig.fallRate, step);
+        double decay = Math.pow(0.5, step * 20.0 / RadiationConfig.contaminationHalfLife);
+        double level = chunk.level, contamination = chunk.contamination;
+        long t = 0;
+        for (; t < 30L * 24 * 3600; t += step) {
+            double target = (chunk.sources + contamination) * chunk.scrubbing;
+            if (Math.max(level, target) <= RadiationFormat.SAFE) break;
+            // Rising takes seconds, so within a step the level just reaches its target
+            level = target < level ? level + (target - level) * fall : target;
+            contamination *= decay;
+        }
+        return t;
     }
 
     // endregion

@@ -62,6 +62,8 @@ dependencies {
 
     // NotSoSimpleClouds' cloud effects API, for the cloud compat
     compileOnly(files("libs/projectbabelfish-api.jar"))
+    // Radiation glasses in the head bauble slot
+    compileOnly("com.github.GTNewHorizons:Baubles-Expanded:2.2.25-GTNH:dev") { transitive = false }
 
     // Patch stuff
     if (file("libs/AM2.5-LTS-1.8.3-RE-dev.jar").exists()) {

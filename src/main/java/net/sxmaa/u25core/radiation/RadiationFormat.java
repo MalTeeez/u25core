@@ -23,18 +23,39 @@ public final class RadiationFormat {
             unit);
     }
 
+    /** Sv per roentgen, exposure in air converted to dose. */
+    private static final double SV_PER_ROENTGEN = 0.00877;
+
+    /** A rate in both units, e.g. 5.00 Sv/h (570 R/h). */
+    public static String rate(double svPerHour) {
+        return format(svPerHour, "Sv/h") + " (" + format(svPerHour / SV_PER_ROENTGEN, "R/h") + ")";
+    }
+
+    /** Levels up to this count as background, Sv/h. */
+    public static final double SAFE = 1.0E-5;
+
     /** 0 at 10 uSv(/h) up to 1 at 100 Sv(/h), logarithmic. */
     public static double severity(double value) {
-        if (value <= 1.0E-5) return 0;
+        if (value <= SAFE) return 0;
         return Math.min(1, (Math.log10(value) + 5) / 7);
     }
 
-    public static EnumChatFormatting color(double value) {
+    private static final EnumChatFormatting[] COLORS = { EnumChatFormatting.GREEN, EnumChatFormatting.YELLOW,
+        EnumChatFormatting.GOLD, EnumChatFormatting.RED, EnumChatFormatting.DARK_RED };
+
+    /** 0 (background) to 4 (deadly). */
+    public static int tier(double value) {
         double s = severity(value);
-        if (s <= 0) return EnumChatFormatting.GREEN;
-        if (s < 0.3) return EnumChatFormatting.YELLOW;
-        if (s < 0.6) return EnumChatFormatting.GOLD;
-        if (s < 0.85) return EnumChatFormatting.RED;
-        return EnumChatFormatting.DARK_RED;
+        return s <= 0 ? 0 : s < 0.3 ? 1 : s < 0.6 ? 2 : s < 0.85 ? 3 : 4;
+    }
+
+    public static EnumChatFormatting color(double value) {
+        return COLORS[tier(value)];
+    }
+
+    /** e.g. 1h 23m, 4m 05s. */
+    public static String duration(long seconds) {
+        if (seconds >= 3600) return String.format("%dh %02dm", seconds / 3600, seconds / 60 % 60);
+        return String.format("%dm %02ds", seconds / 60, seconds % 60);
     }
 }

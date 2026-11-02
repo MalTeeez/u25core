@@ -107,8 +107,7 @@ public final class RadiationEventHandler {
         EntityRadiationData now = EntityRadiationData.get(event.entityPlayer);
         if (old == null || now == null) return;
         if (event.wasDeath) {
-            // Capped, so dying of radiation doesn't respawn you straight back into the worst effects
-            now.dose = Math.min(old.dose * RadiationConfig.respawnDoseKept, RadiationConfig.lethalDose * 0.5);
+            // Respawn with a clean dose
             now.immunityTicks = RadiationConfig.respawnImmunity;
         } else {
             NBTTagCompound tag = new NBTTagCompound();

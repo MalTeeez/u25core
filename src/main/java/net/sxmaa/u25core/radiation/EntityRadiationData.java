@@ -34,7 +34,7 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
     public double rate;
     /** Remaining dose an anti-rad treatment removes over time, in Sv. */
     public double treatment;
-    /** Extra resistance from rad-protection medicine in Sv/h, and its remaining ticks. */
+    /** Fraction rad-protection medicine blocks, and its remaining ticks. */
     public double medicineResistance;
     public int medicineTicks;
     public int immunityTicks;
@@ -45,7 +45,10 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
     private double heldRate;
     private long heldUntil;
 
-    private static TreeMap<Double, List<PotionEffect>> effectTiers;
+    /** Ticks a lethal dose takes to kill from full health. */
+    private static final float DYING_TICKS = 1200;
+
+    private static TreeMap<Double, List<PotionEffect>> doseTiers, rateTiers;
 
     public static EntityRadiationData get(EntityLivingBase entity) {
         return (EntityRadiationData) entity.getExtendedProperties(KEY);
@@ -96,20 +99,19 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
         return data.immunityTicks > 0 || isImmune(entity);
     }
 
-    /** Resistance in Sv/h from worn armor and medicine. */
-    public static double getResistance(EntityLivingBase entity) {
-        double resistance = 0;
-        for (int slot = 1; slot <= 4; slot++) {
-            resistance += RadiationRegistry.getResistance(entity.getEquipmentInSlot(slot), entity);
+    /** Share of the body each armor slot covers, helmet to boots. A missing piece leaves its share unprotected. */
+    private static final double[] COVERAGE = { 0.15, 0.45, 0.3, 0.1 };
+
+    /** Fraction of incoming radiation that gets past worn armor and medicine. */
+    public static double getPassFraction(EntityLivingBase entity) {
+        double pass = 0;
+        // Equipment slots run from 1 (boots) to 4 (helmet)
+        for (int i = 0; i < COVERAGE.length; i++) {
+            pass += COVERAGE[i] * (1 - RadiationRegistry.getProtection(entity.getEquipmentInSlot(4 - i), entity));
         }
         EntityRadiationData data = get(entity);
-        if (data != null && data.medicineTicks > 0) resistance += data.medicineResistance;
-        return resistance;
-    }
-
-    /** Absorbed rate after protection: r^2 / (r + R), so protection works well against low rates only. */
-    public static double absorbed(double rate, double resistance) {
-        return rate <= 0 ? 0 : rate * rate / (rate + Math.max(0, resistance));
+        if (data != null && data.medicineTicks > 0) pass *= 1 - data.medicineResistance;
+        return pass;
     }
 
     /** Adds exposure at a rate in Sv/h for some ticks. Protection is applied at the next update. */
@@ -152,8 +154,8 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
                 (int) Math.floor(entity.posY + entity.getEyeHeight()),
                 (int) Math.floor(entity.posZ));
             ambient += RadiationManager.getCarried(entity);
-            rate = absorbed(ambient + exposure / ticks, getResistance(entity));
-            dose += rate * ticks / RadiationManager.TICKS_PER_HOUR;
+            rate = (ambient + exposure / ticks) * getPassFraction(entity);
+            dose += rate * ticks / RadiationConfig.doseHourTicks;
         }
 
         if (treatment > 0) {
@@ -166,12 +168,24 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
         if (dose < 1.0E-9) dose = 0;
 
         if (isProtectedFrom(entity, this)) return;
-        if (dose >= RadiationConfig.lethalDose) {
+        if (dose >= RadiationConfig.instantDeathDose) {
             entity.attackEntityFrom(DAMAGE, Float.MAX_VALUE);
             return;
         }
-        Map.Entry<Double, List<PotionEffect>> tier = getEffectTiers()
-            .floorEntry(dose / RadiationConfig.lethalDose * 100);
+        if (dose >= RadiationConfig.lethalDose) {
+            // Dies over about a minute, anti-rad treatment in time can still pull the dose back
+            entity.attackEntityFrom(DAMAGE, entity.getMaxHealth() * ticks / DYING_TICKS);
+        }
+        if (doseTiers == null) {
+            doseTiers = parseTiers(RadiationConfig.doseEffects);
+            rateTiers = parseTiers(RadiationConfig.rateEffects);
+        }
+        applyTier(entity, doseTiers.floorEntry(dose / RadiationConfig.lethalDose * 100), ticks);
+        // Acute effects of what gets through armor right now; the stronger amplifier of the two wins
+        applyTier(entity, rateTiers.floorEntry(rate), ticks);
+    }
+
+    private static void applyTier(EntityLivingBase entity, Map.Entry<Double, List<PotionEffect>> tier, int ticks) {
         if (tier == null) return;
         for (PotionEffect effect : tier.getValue()) {
             // Refresh slightly past the next update, so effects never lapse or stack with themselves
@@ -179,10 +193,9 @@ public final class EntityRadiationData implements IExtendedEntityProperties {
         }
     }
 
-    private static TreeMap<Double, List<PotionEffect>> getEffectTiers() {
-        if (effectTiers != null) return effectTiers;
-        effectTiers = new TreeMap<>();
-        for (String entry : RadiationConfig.doseEffects) {
+    private static TreeMap<Double, List<PotionEffect>> parseTiers(String[] entries) {
+        TreeMap<Double, List<PotionEffect>> effectTiers = new TreeMap<>();
+        for (String entry : entries) {
             String[] kv = entry.split("=", 2);
             try {
                 List<PotionEffect> effects = new ArrayList<>();

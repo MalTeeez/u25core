@@ -31,18 +31,19 @@ public class RadiationConfig {
         "ore:dustThorium=3.0E-7", "gas:nuclearWaste=0.01", "gas:plutonium=0.02", "gas:polonium=0.05" })
     public static String[] radioactiveMaterials;
 
-    @Config.Comment("Armor resistance against radiation, as modid:item[:meta]=Sv/h. Resistances of worn pieces add up.")
-    @Config.DefaultStringList({ "IC2:itemArmorHazmatHelmet=0.25", "IC2:itemArmorHazmatChestplate=0.4",
-        "IC2:itemArmorHazmatLeggings=0.2", "IC2:itemArmorRubBoots=0.15", "ReactorCraft:reactorcraft_item_hazhelmet=2.5",
-        "ReactorCraft:reactorcraft_item_hazchest=4", "ReactorCraft:reactorcraft_item_hazlegs=2",
-        "ReactorCraft:reactorcraft_item_hazboots=1.5", "IC2:itemArmorQuantumHelmet=25",
-        "IC2:itemArmorQuantumChestplate=25", "IC2:itemArmorQuantumLegs=25", "IC2:itemArmorQuantumBoots=25" })
-    public static String[] armorResistance;
+    @Config.Comment("Fraction of radiation an armor piece blocks for the body part it covers (head 15%, chest 45%, legs 30%, feet 10%), as modid:item[:meta]=0..1. A missing piece lets its share through.")
+    @Config.DefaultStringList({ "IC2:itemArmorHazmatHelmet=0.999", "IC2:itemArmorHazmatChestplate=0.999",
+        "IC2:itemArmorHazmatLeggings=0.999", "IC2:itemArmorRubBoots=0.999",
+        "ReactorCraft:reactorcraft_item_hazhelmet=0.999", "ReactorCraft:reactorcraft_item_hazchest=0.999",
+        "ReactorCraft:reactorcraft_item_hazlegs=0.999", "ReactorCraft:reactorcraft_item_hazboots=0.999",
+        "IC2:itemArmorQuantumHelmet=0.9999", "IC2:itemArmorQuantumChestplate=0.9999", "IC2:itemArmorQuantumLegs=0.9999",
+        "IC2:itemArmorQuantumBoots=0.9999" })
+    public static String[] armorProtection;
 
-    @Config.Comment("Resistance in Sv/h of each Modular Powersuits armor piece with the Hazmat module installed.")
-    @Config.DefaultDouble(2.5)
-    @Config.RangeDouble(min = 0)
-    public static double mpsHazmatResistance;
+    @Config.Comment("Fraction of radiation each Modular Powersuits armor piece with the Hazmat module installed blocks.")
+    @Config.DefaultDouble(0.999)
+    @Config.RangeDouble(min = 0, max = 1)
+    public static double mpsHazmatProtection;
 
     @Config.Comment("Potions other mods use as radiation, as potionName=Sv/h per potion level. Instead of the potion, entities get this rate as dose for its duration.")
     @Config.DefaultStringList({ "ic2.potion.radiation=0.2" })
@@ -82,13 +83,13 @@ public class RadiationConfig {
     @Config.DefaultBoolean(true)
     public static boolean replaceReactorCraftRadiation;
 
-    @Config.Comment("Shielding blocks, as key=neutronAbsorb,radiationBlock[,moderates] with fractions 0..1. Keys: block:<modid:name>[:meta] or ore:<name>.")
-    @Config.DefaultStringList({ "ore:blockLead=0.75,0.5", "ore:blockSteel=0.9,0.95", "ore:blockBoron=0.95,0.3",
-        "block:minecraft:obsidian=0.5,0.8", "block:minecraft:water=0.3,0.1,true",
-        "block:minecraft:flowing_water=0.3,0.1,true", "ore:blockGraphite=0.05,0.3,true",
-        "block:minecraft:iron_block=0.6,0.7", "block:minecraft:bedrock=0.975,1", "block:IC2:blockAlloy=0.6,0.7",
-        "block:IC2:blockAlloyGlass=0.4,0.5", "block:IC2:blockReinforcedFoam=0.6,0.7", "block:minecraft:stone=0.1,0.2",
-        "block:minecraft:cobblestone=0.1,0.2", "block:minecraft:dirt=0.05,0.1", "block:minecraft:sand=0.05,0.1" })
+    @Config.Comment("Shielding blocks, as key=neutronAbsorb,radiationBlock[,moderates] with fractions 0..1 for one block (a metre). Keys: block:<modid:name>[:meta] or ore:<name>. Blocks without an entry shield by material: dense solids 99.9%, wood 92%, wool and snow 80%, glass and partial blocks 90%, leaves 10%.")
+    @Config.DefaultStringList({ "ore:blockLead=0.75,1", "ore:blockSteel=0.9,1", "ore:blockBoron=0.95,1",
+        "block:minecraft:obsidian=0.5,1", "block:minecraft:water=0.3,0.99,true",
+        "block:minecraft:flowing_water=0.3,0.99,true", "ore:blockGraphite=0.05,1,true",
+        "block:minecraft:iron_block=0.6,1", "block:minecraft:bedrock=0.975,1", "block:IC2:blockAlloy=0.6,1",
+        "block:IC2:blockAlloyGlass=0.4,1", "block:IC2:blockReinforcedFoam=0.6,1", "block:minecraft:stone=0.1,1",
+        "block:minecraft:cobblestone=0.1,1", "block:minecraft:dirt=0.05,0.998", "block:minecraft:sand=0.05,0.998" })
     public static String[] shielding;
 
     @Config.Comment("Fraction of neutrons absorbed by one block of a fluid that has no shielding entry.")
@@ -96,15 +97,10 @@ public class RadiationConfig {
     @Config.RangeDouble(min = 0, max = 1)
     public static double fluidNeutronAbsorb;
 
-    @Config.Comment("Fraction of radiation blocked by one block of a fluid that has no shielding entry.")
-    @Config.DefaultDouble(0.1)
+    @Config.Comment("Fraction of radiation blocked by one block of a fluid that has no shielding entry (a metre of water stops ~99% of gamma, scatter included).")
+    @Config.DefaultDouble(0.99)
     @Config.RangeDouble(min = 0, max = 1)
     public static double fluidRadiationBlock;
-
-    @Config.Comment("Fraction of radiation blocked per point of hardness by blocks without a shielding entry, capped at 0.5 (stone 7.5%, obsidian 50%). 0 disables.")
-    @Config.DefaultDouble(0.05)
-    @Config.RangeDouble(min = 0, max = 1)
-    public static double hardnessShielding;
 
     @Config.Comment("Shielding blocks around an entity (up to 8 blocks in each direction) reduce the ambient radiation it gets, like a bunker. Sources are always shielded by the blocks around them.")
     @Config.DefaultBoolean(true)
@@ -145,13 +141,23 @@ public class RadiationConfig {
     @Config.RangeInt(min = 1, max = 200)
     public static int playerUpdateInterval;
 
-    @Config.Comment("Dose in Sv at which an entity dies.")
+    @Config.Comment("Ticks one hour of exposure lasts, so Sv/h rates build dose faster than real time (72000). At 4000, 5 minutes of play are 1.5 hours of exposure and 5 Sv/h reaches the default lethal dose in about 5 minutes.")
+    @Config.DefaultInt(4000)
+    @Config.RangeInt(min = 1)
+    public static int doseHourTicks;
+
+    @Config.Comment("Dose in Sv from which an entity dies within seconds instead of over a minute.")
+    @Config.DefaultDouble(50)
+    @Config.RangeDouble(min = 0.01)
+    public static double instantDeathDose;
+
+    @Config.Comment("Dose in Sv from which an entity dies over about a minute, unless treatment brings it back below.")
     @Config.DefaultDouble(8)
     @Config.RangeDouble(min = 0.01)
     public static double lethalDose;
 
-    @Config.Comment("Half-life of accumulated dose in ticks, i.e. natural recovery (72000 = one hour).")
-    @Config.DefaultInt(288000)
+    @Config.Comment("Half-life of accumulated dose in ticks, i.e. natural recovery (72000 = one hour of play).")
+    @Config.DefaultInt(72000)
     @Config.RangeInt(min = 20)
     public static int doseHalfLife;
 
@@ -160,10 +166,9 @@ public class RadiationConfig {
         "75=hunger@2;weakness@2;moveSlowdown@1;confusion@0;wither@0" })
     public static String[] doseEffects;
 
-    @Config.Comment("Fraction of the dose kept on respawn.")
-    @Config.DefaultDouble(0.75)
-    @Config.RangeDouble(min = 0, max = 1)
-    public static double respawnDoseKept;
+    @Config.Comment("Effects while exposed, by the rate getting past armor and shielding, as Sv/h=potion@amplifier;potion@amplifier. Combined with the dose effects, the stronger one wins.")
+    @Config.DefaultStringList({ "50=weakness@0", "150=weakness@0;confusion@0" })
+    public static String[] rateEffects;
 
     @Config.Comment("Ticks of radiation immunity after respawning.")
     @Config.DefaultInt(1800)
