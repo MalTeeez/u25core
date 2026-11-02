@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.sxmaa.u25core.config.ModConfig;
+import net.sxmaa.u25core.config.ParticleConfig;
 import net.sxmaa.u25core.mixins.Mixins;
 import net.sxmaa.u25core.radiation.RadiationConfig;
 import net.sxmaa.u25core.util.GitRevisionChecker;
@@ -26,6 +27,7 @@ public class EarlyMixinLoader implements IFMLLoadingPlugin, IEarlyMixinLoader {
         try {
             ConfigurationManager.registerConfig(ModConfig.class);
             ConfigurationManager.registerConfig(RadiationConfig.class);
+            ConfigurationManager.registerConfig(ParticleConfig.class);
         } catch (ConfigException e) {
             throw new RuntimeException(e);
         }

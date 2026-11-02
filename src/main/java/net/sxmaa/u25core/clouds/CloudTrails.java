@@ -48,6 +48,8 @@ public final class CloudTrails {
     private static final int GROUND_CLEARANCE = 3;
     /** Jetpacks climb at least this fast, in blocks per tick. */
     private static final double MIN_CLIMB = 0.05;
+    /** Faster descents than this, in blocks per tick, count as falling, not flying. Free fall passes it in 4 ticks. */
+    private static final double MAX_FLIGHT_DESCENT = 0.25;
     /** Clouds sit at y 128-200; trails far below them would only evict effects that show. */
     private static final double MIN_Y = 100;
     /** Clouds are 8-block cubes, smaller trails barely show. */
@@ -65,6 +67,8 @@ public final class CloudTrails {
     private static final float CLEARED_FRACTION = 0.4F;
     /** Lightning and weather machine columns reach this far up, through any cloud layer. */
     private static final double COLUMN_HEIGHT = 400;
+
+    private static final float[] NO_WIND = new float[3];
 
     /** Squared step per tick an entity class needs to leave a trail, infinite for none. */
     private final Map<Class<?>, Double> minStepSq = new HashMap<>();
@@ -137,19 +141,23 @@ public final class CloudTrails {
     }
 
     private void player(EntityPlayer player) {
-        boolean active = player.ridingEntity == null && clearBelow(player)
-            && (stepSq(player) > FAST_PLAYER_SQ || jetpack(player) && player.posY - player.prevPosY > MIN_CLIMB);
         ItemStack held = player.getHeldItem();
         boolean gliding = held != null && isGlider.computeIfAbsent(
             held.getItem()
                 .getClass(),
             c -> nameHas(c, "Glider"));
+        boolean fast = stepSq(player) > FAST_PLAYER_SQ;
+        double dy = player.posY - player.prevPosY;
+        // A plain fall isn't flight: without a jetpack or glider only flying players (descending slowly, or flying
+        // as far as this client knows, which is only true for its own player) cut through the clouds
+        boolean flying = player.capabilities.isFlying || dy > -MAX_FLIGHT_DESCENT;
+        boolean active = player.ridingEntity == null && clearBelow(player)
+            && (jetpack(player) ? fast || dy > MIN_CLIMB : fast && (gliding || flying));
         float radius = (gliding ? ModConfig.cloudGliderTrailRadius : ModConfig.cloudPlayerTrailRadius)
             / CLEARED_FRACTION;
         float expand = PLAYER_EXPAND_SECONDS;
-        // Laid ahead of the player, so they fly into open air rather than a wall: the clouds only pick up effect
-        // changes
-        // when a mesh rebuild starts, so the opening lags behind and a fast fall would outrun it
+        // Laid ahead of the player, so they fly into open air rather than a wall; a longer lead drifts further
+        // with the wind before they get there
         trail(
             player,
             active,
@@ -205,9 +213,12 @@ public final class CloudTrails {
     private static void trail(Entity entity, boolean active, float radius, float leadTicks, float expandSeconds,
         float healSeconds) {
         if (active && entity.posY > MIN_Y) {
-            double x = entity.posX + (entity.posX - entity.prevPosX) * leadTicks,
-                y = entity.posY + (entity.posY - entity.prevPosY) * leadTicks,
-                z = entity.posZ + (entity.posZ - entity.prevPosZ) * leadTicks;
+            // The lead point drifts with the clouds until the entity gets there, so lead by the velocity relative to
+            // them: the hole then opens where the entity will cross the drifting clouds
+            float[] wind = leadTicks > 0 ? CloudEffects.windVelocity() : NO_WIND;
+            double x = entity.posX + (entity.posX - entity.prevPosX - wind[0] / 20) * leadTicks,
+                y = entity.posY + (entity.posY - entity.prevPosY - wind[1] / 20) * leadTicks,
+                z = entity.posZ + (entity.posZ - entity.prevPosZ - wind[2] / 20) * leadTicks;
             if (healSeconds > 0) CloudEffects.trailPoint(entity, x, y, z, radius, expandSeconds, healSeconds);
             else CloudEffects.trailPoint(entity, x, y, z, radius);
         } else {

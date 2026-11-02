@@ -295,6 +295,12 @@ public enum Mixins implements IMixins {
             .setPhase(Phase.LATE)
             .addCommonMixins("clouds.OwnExplosionCloudMixin", "clouds.TechgunsExplosionCloudMixin")),
 
+    SESSION_LOCK_CHECK_CACHE(
+        new MixinBuilder()
+            .setApplyIf(() -> ModConfig.cacheSessionLockCheck)
+            .setPhase(Phase.EARLY)
+            .addCommonMixins("perf.SaveHandlerSessionLockMixin")),
+
     EXPLOSION_CLOUDS(
         new MixinBuilder()
             .setApplyIf(() -> ModConfig.cloudCompat)
@@ -307,6 +313,10 @@ public enum Mixins implements IMixins {
             .addCommonMixins("endportal.ItemEnderEyeMixin")),
 
     // Early, the targets are vanilla classes
+    FANCY_BLOCK_PARTICLES(
+        new MixinBuilder().setPhase(Phase.EARLY)
+            .addClientMixins("particles.EffectRendererParticleMixin")),
+
     RADIATION_CORE(
         new MixinBuilder()
             .setApplyIf(() -> RadiationConfig.enabled)

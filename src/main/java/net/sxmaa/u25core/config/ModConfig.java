@@ -56,6 +56,10 @@ public class ModConfig {
     @Config.DefaultString("")
     public static String gitRevPrefix;
 
+    @Config.Comment("Trust a passed world session.lock check for a second instead of re-reading the file on every chunk save. Another instance taking the world over is still caught within a second.")
+    @Config.DefaultBoolean(true)
+    public static boolean cacheSessionLockCheck;
+
     @Config.Comment("Prevent Item Frames from ticking in unloaded chunks when AM2 is installed.")
     @Config.DefaultBoolean(true)
     public static boolean preventAM2ItemFrameChunkloading;
@@ -188,8 +192,8 @@ public class ModConfig {
     @Config.RangeFloat(min = 0)
     public static float cloudGliderTrailRadius;
 
-    @Config.Comment("Seconds of a player's current speed the tunnel is opened ahead of them. Raise it if fast flyers or fallers end up at the front edge of the opening rather than inside it.")
-    @Config.DefaultFloat(1)
+    @Config.Comment("Seconds of a player's current speed the tunnel is opened ahead of them. Raise it if fast flyers end up at the front edge of the opening; the opening drifts with the wind meanwhile, so a long lead can leave them at its side.")
+    @Config.DefaultFloat(0.4F)
     @Config.RangeFloat(min = 0)
     public static float cloudPlayerTrailLeadSeconds;
 
